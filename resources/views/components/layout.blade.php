@@ -8,7 +8,7 @@
     <title>Stamp Albums for Sale</title>
     <!-- Fluid viewport -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.slate.min.css">
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="{{ asset('/css/main.css')}}">
 
 </head>
 
