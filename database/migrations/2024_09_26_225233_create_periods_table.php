@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('periods', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(\App\Models\Country::class);
-            $table->string("name");
+            $table->string("description");
             $table->string("pages");
             $table->string("line_date");
             $table->string("c");
