@@ -14,7 +14,7 @@
         <div class="hook">
 
             <video video width="440px" autoplay="autoplay" muted preload="auto">
-                <source src="{{ url('/stamps_video.mp4') }}" type="video/mp4">
+                <source src="{{ asset('/stamps_video.mp4') }}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
 
