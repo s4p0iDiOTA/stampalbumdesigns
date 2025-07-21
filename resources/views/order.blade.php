@@ -75,51 +75,7 @@
             margin-bottom: 0.5rem;
         }
         
-        .range-input {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #e2e8f0;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            cursor: pointer;
-        }
-        
-        .range-input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            background: #3b82f6;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
-        }
-        
-        .range-input::-webkit-slider-thumb:hover {
-            background: #1d4ed8;
-            transform: scale(1.1);
-            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
-        }
-        
-        .range-input::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            background: #3b82f6;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
-        }
-        
-        .range-input::-moz-range-thumb:hover {
-            background: #1d4ed8;
-            transform: scale(1.1);
-            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
-        }
+        /* Pico CSS Range styling is handled automatically */
         
         .range-value-display {
             background: #f8fafc;
@@ -203,25 +159,31 @@
                             <label class="input-label">From Year</label>
                             <input 
                                 type="range" 
-                                class="range-input"
                                 :min="minAvailableYear"
                                 :max="maxAvailableYear"
                                 x-model="startYear"
                                 @input="handleStartYearChange"
                             />
-                            <div class="range-value-display" x-text="startYear || minAvailableYear"></div>
+                            <select x-model="startYear" @change="handleStartYearChange" style="margin-top: 0.5rem; font-size: 0.875rem;">
+                                <template x-for="year in availableYears" :key="year">
+                                    <option :value="year" x-text="year"></option>
+                                </template>
+                            </select>
                         </div>
                         <div class="input-field">
                             <label class="input-label">To Year</label>
                             <input 
                                 type="range" 
-                                class="range-input"
                                 :min="minAvailableYear"
                                 :max="maxAvailableYear"
                                 x-model="endYear"
                                 @input="handleEndYearChange"
                             />
-                            <div class="range-value-display" x-text="endYear || maxAvailableYear"></div>
+                            <select x-model="endYear" @change="handleEndYearChange" style="margin-top: 0.5rem; font-size: 0.875rem;">
+                                <template x-for="year in availableYears" :key="year">
+                                    <option :value="year" x-text="year"></option>
+                                </template>
+                            </select>
                         </div>
                     </div>
                 </div>
