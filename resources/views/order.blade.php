@@ -67,8 +67,8 @@
                     
                     <!-- Periods Table using Pico CSS -->
                     <figure x-show="filteredPeriods.length > 0">
-                        <table role="grid">
-                            <thead>
+                        <table role="grid" class="striped" style="table-layout: fixed; width: 100%; pico-background-slate-600">
+                            <thead data-theme="dark" style="--pico-background-color:rgb(144, 158, 190); --pico-color:white;--pico-form-element-background-color: rgb(197 199 203)">
                                 <tr>
                                     <th scope="col" style="width: 30%;">
                                         <label>
