@@ -119,16 +119,26 @@
                 <!-- Country Selection Section -->
                 <div class="panel-section">
                     <div class="panel-title">Country</div>
-                    <input 
-                        type="text" 
-                        id="country"
-                        x-model="countryQuery" 
-                        placeholder="Search for a country..."
-                        @input="filterCountries"
-                        @keydown="handleKeydown($event)"
-                        autocomplete="off"
-                        style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; background-image: none;"
-                    />
+                    <div style="position: relative;">
+                        <input 
+                            type="text" 
+                            id="country"
+                            x-model="countryQuery" 
+                            placeholder="Search for a country..."
+                            @input="filterCountries"
+                            @keydown="handleKeydown($event)"
+                            autocomplete="off"
+                            style="width: 100%; padding: 0.75rem 2.5rem 0.75rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; background-image: none;"
+                        />
+                        <button 
+                            x-show="countryQuery.length > 0" 
+                            @click="clearCountrySearch()"
+                            style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer; font-size: 1.2rem; padding: 0.25rem;"
+                            title="Clear search"
+                        >
+                            ×
+                        </button>
+                    </div>
                     
                     <!-- Country Suggestions -->
                     <div x-show="filteredCountries.length > 0 && countryQuery.length > 1" 
@@ -266,11 +276,15 @@
                                     </div>
                                     <button 
                                         @click.stop="removeGroup(group.id)"
-                                        style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: background 0.2s;"
-                                        onmouseover="this.style.background='#dc2626'"
-                                        onmouseout="this.style.background='#ef4444'"
+                                        style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.3rem;"
+                                        onmouseover="this.style.background='#dc2626'; this.style.transform='translateY(-1px)'"
+                                        onmouseout="this.style.background='#ef4444'; this.style.transform='translateY(0px)'"
                                     >
-                                        🗑️ Remove
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                        </svg>
+                                        Remove
                                     </button>
                                 </summary>
                                 
@@ -401,6 +415,19 @@
                     }
                     // Reset highlighted index when filtering
                     this.highlightedIndex = -1;
+                },
+
+                // Clear country search
+                clearCountrySearch() {
+                    this.countryQuery = '';
+                    this.filteredCountries = [];
+                    this.highlightedIndex = -1;
+                    this.selectedCountry = '';
+                    this.availablePeriods = [];
+                    this.filteredPeriods = [];
+                    this.selectedPeriods = [];
+                    this.availableYears = [];
+                    this.selectAll = false;
                 },
 
                 // Highlight matching text in country names
