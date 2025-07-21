@@ -151,7 +151,7 @@
                 </div>
 
                 <!-- Year Range Selection Section -->
-                <div x-show="selectedCountry && availablePeriods.length > 0" x-cloak class="panel-section">
+                <div x-show="selectedCountry && availablePeriods.length > 0 && availableYears.length > 0" x-cloak class="panel-section">
                 <div class="panel-title">Year Range</div>
                     
                     <div class="input-group">
