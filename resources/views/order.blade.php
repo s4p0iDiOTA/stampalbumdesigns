@@ -1,4 +1,10 @@
 <x-layout>
+    <style>
+        /* Hide elements initially to prevent FOUC */
+        [x-cloak] { display: none !important; }
+        .periods-table { display: none; }
+        .add-button { display: none; }
+    </style>
     <main class="container" x-data="orderPageData()">
         <!-- Two Column Grid using Pico CSS -->
         <div class="grid">
@@ -35,7 +41,7 @@
                 </fieldset>
 
                 <!-- Year Selection (appears after country selection) -->
-                <fieldset x-show="selectedCountry && availablePeriods.length > 0">
+                <fieldset x-show="selectedCountry && availablePeriods.length > 0" x-cloak>
                     <div class="grid">
                         <div>
                             <label for="startYear">Start Year:</label>
@@ -66,7 +72,7 @@
                     </div>
                     
                     <!-- Periods Table using Pico CSS -->
-                    <figure x-show="filteredPeriods.length > 0">
+                    <figure x-show="filteredPeriods.length > 0" x-cloak>
                         <table role="grid" class="striped" style="table-layout: fixed; width: 100%; pico-background-slate-600">
                             <thead data-theme="dark" style="--pico-background-color:rgb(144, 158, 190); --pico-color:white;--pico-form-element-background-color: rgb(197 199 203)">
                                 <tr>
@@ -106,7 +112,7 @@
                     </figure>
                     
                     <!-- Add to Order Button -->
-                    <div x-show="selectedPeriods.length > 0" style="margin-top: 1rem; text-align: center;">
+                    <div x-show="selectedPeriods.length > 0" x-cloak style="margin-top: 1rem; text-align: center;">
                         <button @click="addToOrder()" style="contrast">
                          + Add to Order
                         </button>
@@ -121,12 +127,12 @@
                         <h5>Your Order</h5>
                     </header>
                 
-                    <div x-show="orderGroups.length === 0" style="text-align: center; padding: 3rem 0;">
+                    <div x-show="orderGroups.length === 0" x-cloak style="text-align: center; padding: 3rem 0;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
                         <p>Add items to build your order</p>
                     </div>
                 
-                    <div x-show="orderGroups.length > 0">
+                    <div x-show="orderGroups.length > 0" x-cloak>
                         <!-- Country Groups Accordion Style -->
                         <template x-for="group in orderGroups" :key="group.id">
                             <details style="margin-bottom: 0.75rem; border: 2px solid var(--muted-border-color); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -178,7 +184,7 @@
                         </template>
                         
                         <!-- Order Summary using Pico CSS -->
-                        <section style="margin-top: 1rem;">
+                        <section style="margin-top: 1rem;" x-cloak>
                             <h3>Total Pages: <span x-text="totalPages"></span></h3>
                             
                             <!-- Paper Type Selection -->
@@ -199,12 +205,12 @@
                             
                             
                             <!-- Total Price -->
-                            <div x-show="total > 0" style="background: var(--primary-focus); color: white; padding: 0.75rem; border-radius: var(--border-radius); text-align: center; margin: 1rem 0; font-size: 0.9rem;">
+                            <div x-show="total > 0" x-cloak style="background: var(--primary-focus); color: white; padding: 0.75rem; border-radius: var(--border-radius); text-align: center; margin: 1rem 0; font-size: 0.9rem;">
                                 <strong>Total: $<span x-text="total"></span></strong>
                             </div>
                             
                             <!-- Add to Cart Button -->
-                            <form x-show="total > 0 && orderGroups.length > 0" action="{{ route('cart.add') }}" method="POST">
+                            <form x-show="total > 0 && orderGroups.length > 0" x-cloak action="{{ route('cart.add') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="order_groups" :value="JSON.stringify(orderGroups)">
                                 <input type="hidden" name="paper_type" :value="selectedPrice">
