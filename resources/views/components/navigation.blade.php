@@ -1,8 +1,12 @@
 <nav>
     
     <ul>      
-        <li><a href="/"><x-application-logo class="home_logo" style="height: 42px;width:42px;color: #2d2d2d"/></a></li>
-        <li class="logotype"><strong>Stamp Album Designs</strong></li>
+        <li>
+            <a href="/" style="display: flex; align-items: center;">
+                <img src="{{ asset('logo-original.png') }}" alt="Stamp Album Designs Logo" style="height: 42px; width: auto; margin-right: 0.5rem;">
+            </a>
+        </li>
+        <!-- <li class="logotype"><strong>Stamp Album Designs</strong></li> -->
     </ul>
     <ul>
         <li>
