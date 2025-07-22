@@ -7,7 +7,7 @@
     <meta name="color-scheme" content="light dark" />
     <title>Professional Stamp Album Pages | Stamp Album Designs</title>
     <meta name="description" content="Premium printed stamp album pages for over 300 countries. Professional quality heavyweight paper. Order entire countries or specific years.">
-    <link rel="icon" type="image/png" href="{{ asset('logo-original.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- Fluid viewport -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.slate.min.css">
     <link rel="stylesheet" href="{{ asset('/css/main.css')}}">
