@@ -114,11 +114,28 @@
             
             <!-- Left Column - Select Items (50%) -->
             <div style="grid-column: span 6;">
-                <!-- <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 2rem;">Select Items</h2> -->
-                
-                <!-- Country Selection Section -->
+                <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">Build Your Order</h2>
+
+                <!-- Step 1: Paper Type Selection -->
+                <div class="panel-section">
+                    <div class="panel-title">1. Select Paper Type</div>
+                    <select
+                        id="selectedPaperType"
+                        x-model="selectedPaperType"
+                        style="font-size: 0.95rem; width: 100%;"
+                    >
+                        <option value="0">Select paper type</option>
+                        <option value="0.20">Heavyweight, 3-hole ($0.20/page)</option>
+                        <option value="0.30">Scott International ($0.30/page)</option>
+                        <option value="0.35">Scott Specialized 2-hole ($0.35/page)</option>
+                        <option value="0.35">Scott Specialized 3-hole ($0.35/page)</option>
+                        <option value="0.30">Minkus 2-hole ($0.30/page)</option>
+                    </select>
+                </div>
+
+                <!-- Step 2: Country Selection Section -->
                 <div class="panel-section" x-data="{ dropdownOpen: false }" @click.outside="filteredCountries = []">
-                    <div class="panel-title">Country</div>
+                    <div class="panel-title">2. Select Country</div>
                     <div style="position: relative;">
                         <input
                             type="text"
@@ -164,9 +181,9 @@
                     </div>
                 </div>
 
-                <!-- Year Range Selection Section -->
+                <!-- Step 3: Year Range Selection Section -->
                 <div x-show="selectedCountry && availablePeriods.length > 0 && availableYears.length > 0" x-cloak class="panel-section">
-                <div class="panel-title">Year Range</div>
+                <div class="panel-title">3. Select Year Range</div>
                     
                     <div class="input-group">
                         <div class="input-field">
@@ -202,9 +219,9 @@
                     </div>
                 </div>
 
-                <!-- Periods Selection Section -->
+                <!-- Step 4: Files Selection Section -->
                 <div x-show="selectedCountry && availablePeriods.length > 0" x-cloak class="panel-section" style="padding:0;">
-                    <!-- <div class="panel-title">Available Periods</div> -->
+                    <div class="panel-title" style="padding: 1.5rem 1.5rem 0 1.5rem;">4. Select Files</div>
                     
                     <!-- Periods Table using Pico CSS -->
                     <table x-show="filteredPeriods.length > 0" x-cloak role="grid" class="striped" style="table-layout: fixed; width: 100%; margin: 0;">
@@ -257,103 +274,99 @@
             <aside style="grid-column: span 6;">
                 <article>
                     <header>
-                        <h5>Your Order</h5>
+                        <h5>Your Order Summary</h5>
                     </header>
-                
+
                     <div x-show="orderGroups.length === 0" x-cloak style="text-align: center; padding: 3rem 0;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
-                        <p>Add items to build your order</p>
+                        <p style="color: #64748b;">Your order will appear here</p>
+                        <p style="font-size: 0.85rem; color: #94a3b8;">Start by selecting a paper type</p>
                     </div>
                 
                     <div x-show="orderGroups.length > 0" x-cloak>
-                        <!-- Country Groups Accordion Style -->
-                        <template x-for="group in orderGroups" :key="group.id">
-                            <details style="margin-bottom: 0.75rem; border: 2px solid var(--muted-border-color); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                <summary style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 1.25rem; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--muted-border-color);">
-                                    <div style="flex: 1;">
-                                        <div style="font-size: 1.2rem; color: #1e293b; margin-bottom: 0.25rem;" x-text="group.country"></div>
-                                        <div style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 0.5rem;">
-                                            <span style="background: #3b82f6; color: white; padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500;" x-text="group.actualYearRange"></span>
-                                            <span>•</span>
-                                            <span style="font-weight: 500;" x-text="group.totalPages + ' pages'"></span>
-                                        </div>
-                                    </div>
-                                    <button 
-                                        @click.stop="removeGroup(group.id)"
-                                        style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.3rem;"
-                                        onmouseover="this.style.background='#dc2626'; this.style.transform='translateY(-1px)'"
-                                        onmouseout="this.style.background='#ef4444'; this.style.transform='translateY(0px)'"
-                                    >
-                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                        </svg>
-                                        Remove
-                                    </button>
-                                </summary>
-                                
-                                <!-- Expanded content showing individual years -->
-                                <div style="padding: 1.25rem; background: #fefefe;">
-                                    <div style="display: flex; align-items: center; margin-bottom: 0.75rem;">
-                                        <h6 style="margin: 0; color: #475569; font-size: 0.9rem; font-weight: 600;">Files:</h6>
-                                        <span style="margin-left: 0.5rem; background: #f1f5f9; color: #64748b; padding: 0.1rem 0.4rem; border-radius: 8px; font-size: 0.7rem;" x-text="group.periods.length + ' selected'"></span>
-                                    </div>
-                                    <div style="display: grid; gap: 0.5rem;">
-                                        <template x-for="period in group.periods" :key="period.id">
-                                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
-                                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                                    <span style="font-weight: 600; color: #1e293b;" x-text="period.description"></span>
-                                                    <span style="color: #64748b; font-size: 0.8rem;" x-text="(period.pagesInRange || period.pages) + ' pages'"></span>
+                        <!-- Group by Paper Type -->
+                        <template x-for="[paperType, groups] in Object.entries(groupedByPaperType())" :key="paperType">
+                            <div style="margin-bottom: 1.5rem;">
+                                <!-- Paper Type Header -->
+                                <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 0.875rem 1.25rem; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    <span x-text="getPaperTypeName(paperType)"></span>
+                                    <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">
+                                        $<span x-text="paperType"></span>/page
+                                    </span>
+                                </div>
+
+                                <!-- Countries under this paper type -->
+                                <div style="border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; overflow: hidden;">
+                                    <template x-for="group in groups" :key="group.id">
+                                        <div style="border-bottom: 1px solid #e2e8f0; last:border-bottom-none;">
+                                            <div style="background: #f8fafc; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+                                                <div style="flex: 1;">
+                                                    <div style="font-size: 1.05rem; font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;" x-text="group.country"></div>
+                                                    <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                                                        <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="opacity: 0.7;">
+                                                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                                                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                                                            </svg>
+                                                            <span x-text="group.actualYearRange"></span>
+                                                        </span>
+                                                        <span>•</span>
+                                                        <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="opacity: 0.7;">
+                                                                <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
+                                                            </svg>
+                                                            <span x-text="group.totalPages + ' pages'"></span>
+                                                        </span>
+                                                        <span>•</span>
+                                                        <span style="font-weight: 600; color: #059669;">
+                                                            $<span x-text="(group.totalPages * parseFloat(group.paperType)).toFixed(2)"></span>
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <button
-                                                    @click="removePeriodFromGroup(group.id, period.id)"
-                                                    style="background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; cursor: pointer; transition: all 0.2s;"
-                                                    onmouseover="this.style.background='#e2e8f0'; this.style.color='#475569'"
-                                                    onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b'"
+                                                    @click="removeGroup(group.id)"
+                                                    style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; margin-left: 1rem;"
+                                                    onmouseover="this.style.background='#dc2626'; this.style.transform='scale(1.05)'"
+                                                    onmouseout="this.style.background='#ef4444'; this.style.transform='scale(1)'"
+                                                    title="Remove this country"
                                                 >
+                                                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                                    </svg>
                                                     Remove
                                                 </button>
                                             </div>
-                                        </template>
-                                    </div>
+                                        </div>
+                                    </template>
                                 </div>
-                            </details>
+                            </div>
                         </template>
                         
                         <!-- Order Summary using Pico CSS -->
                         <section style="margin-top: 1rem;" x-cloak>
-                            <h3>Total Pages: <span x-text="totalPages"></span></h3>
-                            
-                            <!-- Paper Type Selection -->
-                            <label for="paperType">Paper Type:</label>
-                            <select 
-                                id="paperType"
-                                x-model="selectedPrice"
-                                @change="calculateTotal"
-                                style="font-size: 0.9rem;"
-                            >
-                                <option value="0">Select paper type</option>
-                                <option value="0.20">Heavyweight, 3-hole ($0.20/page)</option>
-                                <option value="0.30">Scott International ($0.30/page)</option>
-                                <option value="0.35">Scott Specialized 2-hole ($0.35/page)</option>
-                                <option value="0.35">Scott Specialized 3-hole ($0.35/page)</option>
-                                <option value="0.30">Minkus 2-hole ($0.30/page)</option>
-                            </select>
-                            
-                            
-                            <!-- Total Price -->
-                            <div x-show="total > 0" x-cloak style="background: var(--primary-focus); color: white; padding: 0.75rem; border-radius: var(--border-radius); text-align: center; margin: 1rem 0; font-size: 0.9rem;">
-                                <strong>Total: $<span x-text="total"></span></strong>
+                            <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                <h3 style="margin-top: 0; margin-bottom: 0.75rem; font-size: 1.1rem;">Order Summary</h3>
+                                <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+                                    <span style="font-weight: 500;">Total Pages:</span>
+                                    <span style="font-weight: 600; color: #3b82f6;" x-text="totalPages"></span>
+                                </div>
+                                <div x-show="total > 0" style="display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 1.2rem; margin-top: 0.5rem;">
+                                    <span style="font-weight: 700;">Total:</span>
+                                    <span style="font-weight: 700; color: #059669;">$<span x-text="total.toFixed(2)"></span></span>
+                                </div>
+                                <div x-show="total === 0 && orderGroups.length > 0" style="padding: 0.5rem 0; color: #ef4444; font-size: 0.85rem; text-align: center;">
+                                    Please select paper type for each country
+                                </div>
                             </div>
-                            
+
                             <!-- Add to Cart Button -->
                             <form x-show="total > 0 && orderGroups.length > 0" x-cloak action="{{ route('cart.add') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="order_groups" :value="JSON.stringify(orderGroups)">
-                                <input type="hidden" name="paper_type" :value="selectedPrice">
                                 <input type="hidden" name="quantity" :value="quantity">
-                                <input type="hidden" name="total" :value="total">
-                                
+                                <input type="hidden" name="total" :value="total.toFixed(2)">
+
                                 <button type="submit" style="width: 100%; font-size: 0.9rem;">
                                     🛒 Add to Cart
                                 </button>
@@ -392,7 +405,7 @@
                 groupIdCounter: 1,
 
                 // Paper and pricing
-                selectedPrice: 0,
+                selectedPaperType: 0,
                 quantity: 1,
                 total: 0,
                 totalPages: 0,
@@ -646,13 +659,37 @@
                     }, 0);
                 },
 
-                // Calculate total price
+                // Calculate total price from all groups
                 calculateTotal() {
-                    if (this.selectedPrice > 0 && this.totalPages > 0) {
-                        this.total = parseFloat(this.totalPages * this.selectedPrice).toFixed(2);
-                    } else {
-                        this.total = 0;
-                    }
+                    this.total = this.orderGroups.reduce((sum, group) => {
+                        if (group.paperType && group.paperType > 0) {
+                            return sum + (group.totalPages * parseFloat(group.paperType));
+                        }
+                        return sum;
+                    }, 0);
+                },
+
+                // Group order groups by paper type
+                groupedByPaperType() {
+                    const grouped = {};
+                    this.orderGroups.forEach(group => {
+                        const paperType = group.paperType || 0;
+                        if (!grouped[paperType]) {
+                            grouped[paperType] = [];
+                        }
+                        grouped[paperType].push(group);
+                    });
+                    return grouped;
+                },
+
+                // Get paper type display name from price
+                getPaperTypeName(price) {
+                    const names = {
+                        '0.20': 'Heavyweight, 3-hole',
+                        '0.30': 'Scott International / Minkus 2-hole',
+                        '0.35': 'Scott Specialized'
+                    };
+                    return names[price] || 'Custom Paper Type';
                 },
 
                 // Get period object by ID
@@ -703,7 +740,7 @@
                         return total + parseInt(pageCount);
                     }, 0);
 
-                    // Create new order group
+                    // Create new order group with selected paper type
                     const newGroup = {
                         id: groupId,
                         country: this.selectedCountry,
@@ -712,6 +749,7 @@
                         periods: periodsToAdd,
                         totalFiles: periodsToAdd.length,
                         totalPages: totalPages,
+                        paperType: this.selectedPaperType || 0,  // Use selected paper type from Step 1
                         expanded: false
                     };
 
