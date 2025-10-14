@@ -117,31 +117,35 @@
                 <!-- <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 2rem;">Select Items</h2> -->
                 
                 <!-- Country Selection Section -->
-                <div class="panel-section">
+                <div class="panel-section" x-data="{ dropdownOpen: false }" @click.outside="filteredCountries = []">
                     <div class="panel-title">Country</div>
                     <div style="position: relative;">
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             id="country"
-                            x-model="countryQuery" 
+                            x-model="countryQuery"
                             placeholder="Search for a country..."
                             @input="filterCountries"
+                            @focus="showAllCountries"
+                            @click="showAllCountries"
                             @keydown="handleKeydown($event)"
                             autocomplete="off"
                             style="width: 100%; padding: 0.75rem 2.5rem 0.75rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; background-image: none;"
                         />
-                        <button 
-                            x-show="countryQuery.length > 0" 
+                        <button
+                            x-show="countryQuery.length > 0"
                             @click="clearCountrySearch()"
-                            style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer; font-size: 1.2rem; padding: 0.25rem;"
+                            style="position: absolute; right: 0.5rem; top: 27px; transform: translateY(-50%); background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 1.2rem; padding: 0; display: flex; align-items: center; justify-content: center; line-height: 1; transition: all 0.2s;"
+                            onmouseover="this.style.background='#dc2626'; this.style.transform='translateY(-50%) scale(1.1)'"
+                            onmouseout="this.style.background='#ef4444'; this.style.transform='translateY(-50%) scale(1)'"
                             title="Clear search"
                         >
                             ×
                         </button>
                     </div>
-                    
+
                     <!-- Country Suggestions -->
-                    <div x-show="filteredCountries.length > 0 && countryQuery.length > 1" 
+                    <div x-show="filteredCountries.length > 0" 
                          class="country-suggestions"
                          style="border: 2px solid #e2e8f0; border-radius: 8px; max-height: 240px; overflow-y: auto; background: white; margin-top: 0.5rem; z-index: 1000; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
                         <template x-for="(country, index) in filteredCountries" :key="country.name">
@@ -225,16 +229,16 @@
                                 <tr>
                                     <td style="width: 30%;">
                                         <label>
-                                            <input 
-                                                type="checkbox" 
+                                            <input
+                                                type="checkbox"
                                                 :value="period.id"
                                                 x-model="selectedPeriods"
                                                 @change="updateOrderSummary"
                                             />
                                         </label>
                                     </td>
-                                    <td style="width: 35%;" x-text="extractYear(period.description) || period.description"></td>
-                                    <td style="width: 35%;" x-text="period.pages"></td>
+                                    <td style="width: 35%;" x-text="period.description"></td>
+                                    <td style="width: 35%;" x-text="period.pagesInRange || period.pages"></td>
                                 </tr>
                             </template>
                         </tbody>
@@ -291,17 +295,17 @@
                                 <!-- Expanded content showing individual years -->
                                 <div style="padding: 1.25rem; background: #fefefe;">
                                     <div style="display: flex; align-items: center; margin-bottom: 0.75rem;">
-                                        <h6 style="margin: 0; color: #475569; font-size: 0.9rem; font-weight: 600;">Individual Years:</h6>
+                                        <h6 style="margin: 0; color: #475569; font-size: 0.9rem; font-weight: 600;">Files:</h6>
                                         <span style="margin-left: 0.5rem; background: #f1f5f9; color: #64748b; padding: 0.1rem 0.4rem; border-radius: 8px; font-size: 0.7rem;" x-text="group.periods.length + ' selected'"></span>
                                     </div>
                                     <div style="display: grid; gap: 0.5rem;">
                                         <template x-for="period in group.periods" :key="period.id">
                                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                                    <span style="font-weight: 600; color: #1e293b;" x-text="extractYear(period.description) || period.description"></span>
-                                                    <span style="color: #64748b; font-size: 0.8rem;" x-text="period.pages + ' pages'"></span>
+                                                    <span style="font-weight: 600; color: #1e293b;" x-text="period.description"></span>
+                                                    <span style="color: #64748b; font-size: 0.8rem;" x-text="(period.pagesInRange || period.pages) + ' pages'"></span>
                                                 </div>
-                                                <button 
+                                                <button
                                                     @click="removePeriodFromGroup(group.id, period.id)"
                                                     style="background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; cursor: pointer; transition: all 0.2s;"
                                                     onmouseover="this.style.background='#e2e8f0'; this.style.color='#475569'"
@@ -371,7 +375,7 @@
                 filteredCountries: [],
                 selectedCountry: '',
                 highlightedIndex: -1,
-                
+
                 // Period/Year selection
                 availablePeriods: [],
                 filteredPeriods: [],
@@ -382,36 +386,59 @@
                 minAvailableYear: 1900,
                 maxAvailableYear: 2024,
                 selectAll: false,
-                
+
                 // Order management
                 orderGroups: [],
                 groupIdCounter: 1,
-                
+
                 // Paper and pricing
                 selectedPrice: 0,
                 quantity: 1,
                 total: 0,
                 totalPages: 0,
 
+                // JSON data
+                countryYearPageDict: {},
+                pageCountPerFile: {},
+
                 // Initialize component
                 init() {
-                    // Load all countries from the server
-                    fetch("{{ url('/countries') }}")
+                    // Load country year page dictionary
+                    fetch("{{ url('/country_year_page_dict.json') }}")
                         .then(response => response.json())
                         .then(data => {
-                            this.countries = data;
+                            this.countryYearPageDict = data;
+                            // Extract country names
+                            this.countries = Object.keys(data).map(name => ({ name: name }));
                         })
-                        .catch(error => console.error('Error loading countries:', error));
+                        .catch(error => console.error('Error loading country year page dict:', error));
+
+                    // Load page count per file
+                    fetch("{{ url('/page_count_per_file_per_country.json') }}")
+                        .then(response => response.json())
+                        .then(data => {
+                            this.pageCountPerFile = data;
+                        })
+                        .catch(error => console.error('Error loading page count per file:', error));
+                },
+
+                // Show all countries when input is focused
+                showAllCountries() {
+                    if (this.countryQuery.length === 0) {
+                        this.filteredCountries = [...this.countries];
+                    } else {
+                        this.filterCountries();
+                    }
                 },
 
                 // Filter countries based on search query
                 filterCountries() {
-                    if (this.countryQuery.length > 1) {
+                    if (this.countryQuery.length > 0) {
                         this.filteredCountries = this.countries.filter(country =>
                             country.name.toLowerCase().includes(this.countryQuery.toLowerCase())
                         );
                     } else {
-                        this.filteredCountries = [];
+                        this.filteredCountries = [...this.countries];
                     }
                     // Reset highlighted index when filtering
                     this.highlightedIndex = -1;
@@ -473,36 +500,61 @@
                     this.availablePeriods = [];
                     this.filteredPeriods = [];
                     this.selectAll = false;
-                    
-                    // Fetch periods for the selected country
-                    fetch(`{{ url('/search-country?name=') }}${countryName}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.country && data.periods) {
-                                this.availablePeriods = data.periods;
-                                this.filteredPeriods = data.periods;
-                                this.generateAvailableYears();
-                                // Auto-select all periods by default
-                                this.selectedPeriods = data.periods.map(period => period.id.toString());
-                                this.selectAll = true;
+
+                    // Build periods from JSON data
+                    if (!this.countryYearPageDict[countryName]) {
+                        console.error('Country not found in data:', countryName);
+                        return;
+                    }
+
+                    const countryData = this.countryYearPageDict[countryName];
+                    const fileDescriptions = this.pageCountPerFile[countryName] || {};
+
+                    // Group by file description to create periods
+                    const periodsMap = new Map();
+                    let periodId = 1;
+
+                    Object.keys(countryData).forEach(year => {
+                        Object.keys(countryData[year]).forEach(fileDesc => {
+                            if (!periodsMap.has(fileDesc)) {
+                                periodsMap.set(fileDesc, {
+                                    id: periodId++,
+                                    description: fileDesc,
+                                    pages: fileDescriptions[fileDesc] || 0,
+                                    years: new Set(),
+                                    yearPageMap: {}
+                                });
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error loading periods:', error);
+                            periodsMap.get(fileDesc).years.add(parseInt(year));
+                            periodsMap.get(fileDesc).yearPageMap[year] = countryData[year][fileDesc];
                         });
+                    });
+
+                    // Convert map to array
+                    this.availablePeriods = Array.from(periodsMap.values()).map(period => ({
+                        ...period,
+                        years: Array.from(period.years).sort((a, b) => a - b)
+                    }));
+
+                    this.filteredPeriods = this.availablePeriods;
+                    this.generateAvailableYears();
+
+                    // Auto-select all periods by default
+                    this.selectedPeriods = this.availablePeriods.map(period => period.id.toString());
+                    this.selectAll = true;
                 },
 
                 // Generate available years from periods
                 generateAvailableYears() {
                     const years = new Set();
                     this.availablePeriods.forEach(period => {
-                        const yearMatch = period.description.match(/\d{4}/g);
-                        if (yearMatch) {
-                            yearMatch.forEach(year => years.add(parseInt(year)));
+                        // Use actual years from period data
+                        if (period.years && period.years.length > 0) {
+                            period.years.forEach(year => years.add(year));
                         }
                     });
                     this.availableYears = Array.from(years).sort((a, b) => a - b);
-                    
+
                     // Set min/max available years
                     if (this.availableYears.length > 0) {
                         this.minAvailableYear = Math.min(...this.availableYears);
@@ -516,24 +568,53 @@
                 // Filter periods by year range
                 filterPeriodsByYear() {
                     let filtered = this.availablePeriods;
-                    
+
                     if (this.startYear || this.endYear) {
-                        filtered = this.availablePeriods.filter(period => {
-                            const yearMatch = period.description.match(/\d{4}/);
-                            if (yearMatch) {
-                                const periodYear = parseInt(yearMatch[0]);
-                                const start = this.startYear ? parseInt(this.startYear) : 0;
-                                const end = this.endYear ? parseInt(this.endYear) : 9999;
-                                return periodYear >= start && periodYear <= end;
-                            }
-                            return true;
-                        });
+                        const start = this.startYear ? parseInt(this.startYear) : 0;
+                        const end = this.endYear ? parseInt(this.endYear) : 9999;
+
+                        filtered = this.availablePeriods.map(period => {
+                            // Filter years within the range
+                            const filteredYears = period.years.filter(year => year >= start && year <= end);
+
+                            if (filteredYears.length === 0) return null;
+
+                            // Calculate actual page count for filtered years
+                            const pagesInRange = this.calculatePagesForYearRange(period, filteredYears);
+
+                            return {
+                                ...period,
+                                filteredYears: filteredYears,
+                                pagesInRange: pagesInRange
+                            };
+                        }).filter(p => p !== null);
+                    } else {
+                        // No filter, use all periods
+                        filtered = this.availablePeriods.map(period => ({
+                            ...period,
+                            filteredYears: period.years,
+                            pagesInRange: period.pages
+                        }));
                     }
-                    
+
                     this.filteredPeriods = filtered;
                     // Auto-select all filtered periods
                     this.selectedPeriods = this.filteredPeriods.map(period => period.id.toString());
                     this.selectAll = true;
+                },
+
+                // Calculate pages for a specific year range
+                calculatePagesForYearRange(period, years) {
+                    const allPages = new Set();
+
+                    years.forEach(year => {
+                        const yearStr = year.toString();
+                        if (period.yearPageMap[yearStr]) {
+                            period.yearPageMap[yearStr].forEach(page => allPages.add(page));
+                        }
+                    });
+
+                    return allPages.size;
                 },
 
                 // Toggle select all periods
@@ -558,7 +639,10 @@
                 calculateTotalPages() {
                     this.totalPages = this.selectedPeriods.reduce((total, periodId) => {
                         const period = this.getPeriodById(periodId);
-                        return total + (period ? parseInt(period.pages) : 0);
+                        if (!period) return total;
+                        // Use pagesInRange if available (filtered), otherwise use pages
+                        const pageCount = period.pagesInRange !== undefined ? period.pagesInRange : period.pages;
+                        return total + parseInt(pageCount);
                     }, 0);
                 },
 
@@ -573,6 +657,10 @@
 
                 // Get period object by ID
                 getPeriodById(periodId) {
+                    // First try to find in filtered periods (has pagesInRange)
+                    const filteredPeriod = this.filteredPeriods.find(period => period.id == periodId);
+                    if (filteredPeriod) return filteredPeriod;
+                    // Fallback to available periods
                     return this.availablePeriods.find(period => period.id == periodId);
                 },
 
@@ -603,12 +691,18 @@
                 // Add selected periods to order
                 addToOrder() {
                     if (this.selectedPeriods.length === 0) return;
-                    
+
                     const periodsToAdd = this.selectedPeriods.map(id => this.getPeriodById(id));
                     const yearRange = this.getYearRange();
                     const actualYearRange = this.calculateActualYearRange(periodsToAdd);
                     const groupId = this.groupIdCounter++;
-                    
+
+                    // Calculate total pages using pagesInRange if available
+                    const totalPages = periodsToAdd.reduce((total, period) => {
+                        const pageCount = period.pagesInRange !== undefined ? period.pagesInRange : period.pages;
+                        return total + parseInt(pageCount);
+                    }, 0);
+
                     // Create new order group
                     const newGroup = {
                         id: groupId,
@@ -617,16 +711,16 @@
                         actualYearRange: actualYearRange,
                         periods: periodsToAdd,
                         totalFiles: periodsToAdd.length,
-                        totalPages: periodsToAdd.reduce((total, period) => total + parseInt(period.pages), 0),
+                        totalPages: totalPages,
                         expanded: false
                     };
-                    
+
                     this.orderGroups.push(newGroup);
-                    
+
                     // Clear selections
                     this.selectedPeriods = [];
                     this.selectAll = false;
-                    
+
                     // Recalculate totals
                     this.calculateOrderTotals();
                 },
@@ -657,8 +751,12 @@
                     if (group) {
                         group.periods = group.periods.filter(p => p.id != periodId);
                         group.totalFiles = group.periods.length;
-                        group.totalPages = group.periods.reduce((total, period) => total + parseInt(period.pages), 0);
-                        
+                        // Use pagesInRange if available
+                        group.totalPages = group.periods.reduce((total, period) => {
+                            const pageCount = period.pagesInRange !== undefined ? period.pagesInRange : period.pages;
+                            return total + parseInt(pageCount);
+                        }, 0);
+
                         // Remove group if no periods left
                         if (group.periods.length === 0) {
                             this.removeGroup(groupId);
@@ -673,18 +771,22 @@
                 // Calculate actual year range from selected periods
                 calculateActualYearRange(periods) {
                     if (periods.length === 0) return '';
-                    
-                    const years = periods.map(period => {
-                        const yearMatch = period.description.match(/\d{4}/);
-                        return yearMatch ? parseInt(yearMatch[0]) : null;
-                    }).filter(year => year !== null);
-                    
+
+                    const allYears = new Set();
+                    periods.forEach(period => {
+                        // Use filteredYears if available, otherwise use all years
+                        const yearsToUse = period.filteredYears || period.years || [];
+                        yearsToUse.forEach(year => allYears.add(year));
+                    });
+
+                    const years = Array.from(allYears).sort((a, b) => a - b);
+
                     if (years.length === 0) return 'Various';
                     if (years.length === 1) return years[0].toString();
-                    
+
                     const minYear = Math.min(...years);
                     const maxYear = Math.max(...years);
-                    
+
                     return minYear === maxYear ? minYear.toString() : `${minYear} - ${maxYear}`;
                 },
 
