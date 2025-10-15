@@ -272,6 +272,80 @@
 
             <!-- Right Column - Your Order (50%) -->
             <aside style="grid-column: span 6;">
+                <!-- Persistent Cart (Session-based) -->
+                @if(!empty($cart))
+                    <article style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #10b981;">
+                        <header style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -1rem -1rem 1rem -1rem; padding: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h5 style="margin: 0; color: white;">🛒 Cart ({{ count($cart) }} {{ count($cart) === 1 ? 'item' : 'items' }})</h5>
+                                <a href="{{ route('checkout.index') }}" style="background: white; color: #059669; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: all 0.2s;">
+                                    Proceed to Checkout →
+                                </a>
+                            </div>
+                        </header>
+
+                        @php
+                            $cartTotal = 0;
+                            $cartPages = 0;
+                            foreach($cart as $item) {
+                                // Safety check for new cart structure
+                                if(isset($item['total']) && isset($item['quantity'])) {
+                                    $cartTotal += floatval($item['total']) * intval($item['quantity']);
+                                    if(isset($item['order_groups'])) {
+                                        foreach($item['order_groups'] as $group) {
+                                            $cartPages += intval($group['totalPages']) * intval($item['quantity']);
+                                        }
+                                    }
+                                }
+                            }
+                        @endphp
+
+                        <div style="font-size: 0.9rem;">
+                            @foreach($cart as $itemId => $item)
+                                @if(isset($item['total']) && isset($item['quantity']))
+                                    <div style="background: white; border: 1px solid #d1fae5; border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                            <div style="font-weight: 600; color: #1e293b; font-size: 0.95rem;">
+                                                Order #{{ substr($itemId, -8) }}
+                                            </div>
+                                            <div style="font-weight: 700; color: #059669;">
+                                                ${{ number_format($item['total'], 2) }}
+                                            </div>
+                                        </div>
+                                        @if(isset($item['order_groups']))
+                                            @foreach($item['order_groups'] as $group)
+                                                <div style="font-size: 0.8rem; color: #64748b; padding: 0.25rem 0;">
+                                                    {{ $group['country'] }} ({{ $group['actualYearRange'] }}) - {{ $group['totalPages'] }} pages
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                @endif
+                            @endforeach
+
+                            <div style="background: white; border: 2px solid #10b981; border-radius: 6px; padding: 0.75rem; margin-top: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 500;">Total Pages:</span>
+                                    <span style="font-weight: 600; color: #3b82f6;">{{ $cartPages }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding-top: 0.5rem; border-top: 1px solid #d1fae5;">
+                                    <span style="font-weight: 700;">Cart Total:</span>
+                                    <span style="font-weight: 700; color: #059669; font-size: 1.1rem;">${{ number_format($cartTotal, 2) }}</span>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <a href="{{ route('checkout.index') }}" style="flex: 1; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.75rem; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center; font-size: 0.9rem;">
+                                    Checkout
+                                </a>
+                                <a href="{{ route('checkout.clear') }}" style="background: #ef4444; color: white; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem;" onclick="return confirm('Clear all items from cart?')">
+                                    Clear
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                @endif
+
                 <article>
                     <header>
                         <h5>Your Order Summary</h5>

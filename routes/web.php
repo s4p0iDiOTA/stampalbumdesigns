@@ -21,6 +21,14 @@ Route::patch('/cart/update', [CartController::class, 'updateCart'])->name('cart.
 Route::delete('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
 Route::get('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
+// Checkout routes
+Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/process', [App\Http\Controllers\CheckoutController::class, 'processCheckout'])->name('checkout.process');
+Route::get('/checkout/confirmation', [App\Http\Controllers\CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+Route::get('/api/cart', [App\Http\Controllers\CheckoutController::class, 'getCart'])->name('api.cart');
+Route::delete('/checkout/remove/{item_id}', [App\Http\Controllers\CheckoutController::class, 'removeCartItem'])->name('checkout.remove');
+Route::get('/checkout/clear', [App\Http\Controllers\CheckoutController::class, 'clearCart'])->name('checkout.clear');
+
 Route::get('/search-country', [CountryController::class, 'search']);
 Route::get('/countries', [CountryController::class, 'listCountryNames']);
 
@@ -34,8 +42,9 @@ Route::get('/home2', function () {
 });
 
 Route::get('/order', function () {
-    return view('order');
-});
+    $cart = session()->get('cart', []);
+    return view('order', compact('cart'));
+})->name('order');
 
 /*
 Route::get('/contact', function () {

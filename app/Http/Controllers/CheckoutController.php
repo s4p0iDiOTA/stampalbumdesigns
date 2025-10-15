@@ -19,12 +19,15 @@ class CheckoutController extends Controller
         $totalPages = 0;
 
         foreach ($cart as $item) {
-            $cartTotal += floatval($item['total']) * intval($item['quantity']);
+            // Safety check for cart structure
+            if (isset($item['total']) && isset($item['quantity'])) {
+                $cartTotal += floatval($item['total']) * intval($item['quantity']);
 
-            // Calculate total pages from order groups
-            if (isset($item['order_groups'])) {
-                foreach ($item['order_groups'] as $group) {
-                    $totalPages += intval($group['totalPages']) * intval($item['quantity']);
+                // Calculate total pages from order groups
+                if (isset($item['order_groups'])) {
+                    foreach ($item['order_groups'] as $group) {
+                        $totalPages += intval($group['totalPages']) * intval($item['quantity']);
+                    }
                 }
             }
         }
@@ -106,12 +109,15 @@ class CheckoutController extends Controller
         $itemCount = 0;
 
         foreach ($cart as $item) {
-            $cartTotal += floatval($item['total']) * intval($item['quantity']);
-            $itemCount++;
+            // Safety check for cart structure
+            if (isset($item['total']) && isset($item['quantity'])) {
+                $cartTotal += floatval($item['total']) * intval($item['quantity']);
+                $itemCount++;
 
-            if (isset($item['order_groups'])) {
-                foreach ($item['order_groups'] as $group) {
-                    $totalPages += intval($group['totalPages']) * intval($item['quantity']);
+                if (isset($item['order_groups'])) {
+                    foreach ($item['order_groups'] as $group) {
+                        $totalPages += intval($group['totalPages']) * intval($item['quantity']);
+                    }
                 }
             }
         }
