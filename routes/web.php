@@ -55,10 +55,16 @@ Route::post('/contact', [ContactController::class, 'submit'])->name('contact.sub
 
 //
 
-//admin
+//admin - only for users with 'admin' role
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'role:admin'])->name('dashboard');
+
+// Customer orders - for authenticated users to see their own orders
+Route::middleware('auth')->group(function () {
+    Route::get('/my-orders', [App\Http\Controllers\CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/my-orders/{order}', [App\Http\Controllers\CustomerOrderController::class, 'show'])->name('orders.show');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
