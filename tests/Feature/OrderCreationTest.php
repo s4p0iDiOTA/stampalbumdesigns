@@ -33,6 +33,66 @@ class OrderCreationTest extends TestCase
             'default' => true,
             'url' => config('app.url'),
         ]);
+
+        // Create Language
+        \Lunar\Models\Language::create([
+            'code' => 'en',
+            'name' => 'English',
+            'default' => true,
+        ]);
+
+        // Create Country for address lookups
+        \Lunar\Models\Country::create([
+            'name' => 'United States',
+            'iso3' => 'USA',
+            'iso2' => 'US',
+            'phonecode' => '1',
+            'capital' => 'Washington',
+            'currency' => 'USD',
+            'native' => 'United States',
+            'emoji' => '🇺🇸',
+            'emoji_u' => 'U+1F1FA U+1F1F8',
+        ]);
+
+        // Create TaxClass
+        $taxClass = \Lunar\Models\TaxClass::create([
+            'name' => 'Default',
+            'default' => true,
+        ]);
+
+        // Create ProductType
+        $productType = \Lunar\Models\ProductType::create([
+            'name' => 'Stamp Album Pages',
+        ]);
+
+        // Create Product
+        $product = new \Lunar\Models\Product([
+            'product_type_id' => $productType->id,
+            'status' => 'published',
+            'brand_id' => null,
+        ]);
+        $product->attribute_data = collect([
+            'name' => new \Lunar\FieldTypes\Text('Test Stamp Album Pages'),
+        ]);
+        $product->save();
+
+        // Create ProductVariant
+        $variant = \Lunar\Models\ProductVariant::create([
+            'product_id' => $product->id,
+            'tax_class_id' => $taxClass->id,
+            'sku' => 'STAMP-TEST-001',
+            'stock' => 9999,
+            'shippable' => true,
+            'purchasable' => 'always',
+        ]);
+
+        // Create Price for variant
+        $currency = Currency::first();
+        $variant->prices()->create([
+            'price' => 1000, // $10.00 in cents
+            'currency_id' => $currency->id,
+            'min_quantity' => 1,
+        ]);
     }
 
     public function test_checkout_creates_lunar_order(): void
@@ -75,8 +135,8 @@ class OrderCreationTest extends TestCase
         $order = Order::first();
         $this->assertNotNull($order);
         $this->assertEquals('awaiting-payment', $order->status);
-        $this->assertEquals(5599, $order->sub_total); // $50.00 + $5.99 shipping
-        $this->assertEquals(599, $order->shipping_total);
+        $this->assertEquals(5000, $order->sub_total->value); // $50.00 in cents
+        $this->assertEquals(599, $order->shipping_total->value); // $5.99 in cents
 
         // Assert order has addresses
         $this->assertCount(2, $order->addresses); // shipping + billing
@@ -130,9 +190,9 @@ class OrderCreationTest extends TestCase
         // Subtotal: (25 * 2) + 35 = 85
         // Shipping: express = 15.99
         // Total: 85 + 15.99 = 100.99
-        $this->assertEquals(8500, $order->sub_total);
-        $this->assertEquals(1599, $order->shipping_total);
-        $this->assertEquals(10099, $order->total);
+        $this->assertEquals(8500, $order->sub_total->value);
+        $this->assertEquals(1599, $order->shipping_total->value);
+        $this->assertEquals(10099, $order->total->value);
     }
 
     public function test_checkout_requires_cart(): void
