@@ -17,53 +17,61 @@ class OrderCreationTest extends TestCase
     {
         parent::setUp();
 
-        // Create required Lunar data
-        Currency::create([
-            'code' => 'USD',
-            'name' => 'US Dollar',
-            'exchange_rate' => 1.00,
-            'decimal_places' => 2,
-            'enabled' => true,
-            'default' => true,
-        ]);
+        // Create required Lunar data (use firstOrCreate to avoid duplicates)
+        Currency::firstOrCreate(
+            ['code' => 'USD'],
+            [
+                'name' => 'US Dollar',
+                'exchange_rate' => 1.00,
+                'decimal_places' => 2,
+                'enabled' => true,
+                'default' => true,
+            ]
+        );
 
-        Channel::create([
-            'name' => 'Webstore',
-            'handle' => 'webstore',
-            'default' => true,
-            'url' => config('app.url'),
-        ]);
+        Channel::firstOrCreate(
+            ['handle' => 'webstore'],
+            [
+                'name' => 'Webstore',
+                'default' => true,
+                'url' => config('app.url'),
+            ]
+        );
 
         // Create Language
-        \Lunar\Models\Language::create([
-            'code' => 'en',
-            'name' => 'English',
-            'default' => true,
-        ]);
+        \Lunar\Models\Language::firstOrCreate(
+            ['code' => 'en'],
+            [
+                'name' => 'English',
+                'default' => true,
+            ]
+        );
 
         // Create Country for address lookups
-        \Lunar\Models\Country::create([
-            'name' => 'United States',
-            'iso3' => 'USA',
-            'iso2' => 'US',
-            'phonecode' => '1',
-            'capital' => 'Washington',
-            'currency' => 'USD',
-            'native' => 'United States',
-            'emoji' => '🇺🇸',
-            'emoji_u' => 'U+1F1FA U+1F1F8',
-        ]);
+        \Lunar\Models\Country::firstOrCreate(
+            ['iso2' => 'US'],
+            [
+                'name' => 'United States',
+                'iso3' => 'USA',
+                'phonecode' => '1',
+                'capital' => 'Washington',
+                'currency' => 'USD',
+                'native' => 'United States',
+                'emoji' => '🇺🇸',
+                'emoji_u' => 'U+1F1FA U+1F1F8',
+            ]
+        );
 
         // Create TaxClass
-        $taxClass = \Lunar\Models\TaxClass::create([
-            'name' => 'Default',
-            'default' => true,
-        ]);
+        $taxClass = \Lunar\Models\TaxClass::firstOrCreate(
+            ['name' => 'Default'],
+            ['default' => true]
+        );
 
         // Create ProductType
-        $productType = \Lunar\Models\ProductType::create([
-            'name' => 'Stamp Album Pages',
-        ]);
+        $productType = \Lunar\Models\ProductType::firstOrCreate(
+            ['name' => 'Stamp Album Pages']
+        );
 
         // Create Product
         $product = new \Lunar\Models\Product([
@@ -93,11 +101,16 @@ class OrderCreationTest extends TestCase
             'currency_id' => $currency->id,
             'min_quantity' => 1,
         ]);
+
+        // Create roles
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
     }
 
     public function test_checkout_creates_lunar_order(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('customer');
 
         // Simulate cart session
         session([
@@ -125,7 +138,7 @@ class OrderCreationTest extends TestCase
             'shipping_city' => 'New York',
             'shipping_state' => 'NY',
             'shipping_zip' => '10001',
-            'shipping_country' => 'USA',
+            'shipping_country' => 'United States',
             'billing_same_as_shipping' => true,
         ]);
 
@@ -153,6 +166,7 @@ class OrderCreationTest extends TestCase
     public function test_checkout_calculates_totals_correctly(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('customer');
 
         // Cart with multiple items
         session([
@@ -182,7 +196,7 @@ class OrderCreationTest extends TestCase
             'shipping_city' => 'Los Angeles',
             'shipping_state' => 'CA',
             'shipping_zip' => '90001',
-            'shipping_country' => 'USA',
+            'shipping_country' => 'United States',
         ]);
 
         $order = Order::first();
@@ -198,6 +212,7 @@ class OrderCreationTest extends TestCase
     public function test_checkout_requires_cart(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('customer');
 
         // No cart in session
         $response = $this->actingAs($user)->post('/checkout/process', [
@@ -208,7 +223,7 @@ class OrderCreationTest extends TestCase
             'shipping_city' => 'New York',
             'shipping_state' => 'NY',
             'shipping_zip' => '10001',
-            'shipping_country' => 'USA',
+            'shipping_country' => 'United States',
         ]);
 
         $response->assertRedirect(route('order'));
@@ -219,6 +234,7 @@ class OrderCreationTest extends TestCase
     public function test_checkout_validates_required_fields(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('customer');
 
         session(['cart' => ['item-1' => ['total' => 50, 'quantity' => 1, 'order_groups' => []]]]);
 
@@ -243,6 +259,7 @@ class OrderCreationTest extends TestCase
     public function test_checkout_clears_cart_after_order(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('customer');
 
         session(['cart' => ['item-1' => ['total' => 50, 'quantity' => 1, 'order_groups' => []]]]);
 
@@ -254,7 +271,7 @@ class OrderCreationTest extends TestCase
             'shipping_city' => 'New York',
             'shipping_state' => 'NY',
             'shipping_zip' => '10001',
-            'shipping_country' => 'USA',
+            'shipping_country' => 'United States',
         ]);
 
         $this->assertNull(session('cart'));

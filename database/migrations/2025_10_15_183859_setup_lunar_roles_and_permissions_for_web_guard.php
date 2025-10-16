@@ -56,9 +56,9 @@ return new class extends Migration
         $customerRole->syncPermissions([]);
 
         // Assign admin role to existing admin user(s)
-        // This assumes you have a user with email 'admin@stampalbumdesigns.com'
+        // This ensures the role is assigned even if it already exists
         $adminUser = \App\Models\User::where('email', 'admin@stampalbumdesigns.com')->first();
-        if ($adminUser) {
+        if ($adminUser && !$adminUser->hasRole('admin')) {
             $adminUser->assignRole('admin');
         }
     }

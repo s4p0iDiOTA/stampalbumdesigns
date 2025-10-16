@@ -72,7 +72,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
-
+// Quick logout via GET (for development convenience)
+// WARNING: In production, use POST /logout with CSRF token for security
+Route::get('/logout', function () {
+    \Illuminate\Support\Facades\Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/')->with('status', 'You have been logged out.');
+})->middleware('auth')->name('logout.get');
 
 require __DIR__ . '/auth.php';

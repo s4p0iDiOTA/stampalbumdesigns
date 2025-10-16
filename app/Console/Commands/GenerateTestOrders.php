@@ -122,6 +122,15 @@ class GenerateTestOrders extends Command
         // Get US country for addresses
         $usCountry = Country::where('name', 'like', '%United States%')->first();
 
+        // Get a user to assign orders to (prefer admin user)
+        $user = \App\Models\User::where('email', 'admin@stampalbumdesigns.com')->first()
+            ?? \App\Models\User::first();
+
+        if (!$user) {
+            $this->error('No users found. Please create a user first.');
+            return 1;
+        }
+
         $progressBar = $this->output->createProgressBar($count);
         $progressBar->start();
 
@@ -154,18 +163,21 @@ class GenerateTestOrders extends Command
             $shippingCost = [5.99, 15.99, 29.99][array_rand([5.99, 15.99, 29.99])];
             $total = $subtotal + $shippingCost;
 
-            // Create the order
+            // Create the order breakdowns
             $taxBreakdown = new TaxBreakdown();
             $taxBreakdown->amounts = collect([]);
 
             $order = Order::create([
                 'channel_id' => $channel->id,
+                'user_id' => $user->id, // Link order to user
                 'status' => $statuses[array_rand($statuses)],
                 'reference' => 'ORD-' . strtoupper(substr(md5(uniqid()), 0, 8)),
                 'customer_reference' => null,
                 'sub_total' => (int)($subtotal * 100),
                 'discount_total' => 0,
+                'discount_breakdown' => '[]', // Empty JSON array
                 'shipping_total' => (int)($shippingCost * 100),
+                'shipping_breakdown' => '[]', // Empty JSON array
                 'tax_total' => 0,
                 'tax_breakdown' => $taxBreakdown,
                 'total' => (int)($total * 100),

@@ -107,12 +107,15 @@ class CheckoutController extends Controller
 
             $lunarOrder = \Lunar\Models\Order::create([
                 'channel_id' => $channel->id,
+                'user_id' => auth()->id(), // Link order to authenticated user
                 'status' => 'awaiting-payment',
                 'reference' => 'ORD-' . strtoupper(uniqid()),
                 'customer_reference' => null,
                 'sub_total' => (int)($cartTotal * 100), // Convert to cents
                 'discount_total' => 0,
+                'discount_breakdown' => null,
                 'shipping_total' => (int)($shippingCost * 100),
+                'shipping_breakdown' => null,
                 'tax_total' => 0,
                 'tax_breakdown' => $taxBreakdown,
                 'total' => (int)(($cartTotal + $shippingCost) * 100),

@@ -205,6 +205,12 @@ php artisan migrate            # Run migrations
 php artisan migrate:fresh      # Fresh migration (WARNING: Deletes all data)
 php artisan tinker             # Interactive shell
 php artisan optimize:clear     # Clear all caches
+
+  # Interactive mode (will prompt for name, email, password)
+  php artisan user:create-admin
+
+  # Non-interactive mode (provide all options)
+  php artisan user:create-admin --name="Admin Name" --email="admin@example.com" --password="password"
 ```
 
 ### Frontend Commands
