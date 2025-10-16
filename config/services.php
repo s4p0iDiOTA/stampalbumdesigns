@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'endicia' => [
+        'api_url' => env('ENDICIA_API_URL', 'https://elstestserver.endicia.com/LabelService/EwsLabelService.asmx'),
+        'account_id' => env('ENDICIA_ACCOUNT_ID'),
+        'pass_phrase' => env('ENDICIA_PASS_PHRASE'),
+        'from_zip' => env('ENDICIA_FROM_ZIP', '90210'),
+        'test_mode' => env('ENDICIA_TEST_MODE', true),
+    ],
+
 ];

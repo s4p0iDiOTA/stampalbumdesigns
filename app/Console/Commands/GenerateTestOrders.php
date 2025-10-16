@@ -15,6 +15,7 @@ use Lunar\Models\ProductType;
 use Lunar\Models\TaxClass;
 use Lunar\Base\ValueObjects\Cart\TaxBreakdown;
 use Lunar\FieldTypes\Text;
+use App\Models\PaperType;
 
 class GenerateTestOrders extends Command
 {
@@ -104,13 +105,12 @@ class GenerateTestOrders extends Command
             'Argentina', 'Belgium', 'Netherlands', 'Switzerland'
         ];
 
-        $paperTypes = [
-            ['name' => 'Heavyweight 3-hole', 'price' => 0.20],
-            ['name' => 'Scott International', 'price' => 0.30],
-            ['name' => 'Scott Specialized 2-hole', 'price' => 0.35],
-            ['name' => 'Scott Specialized 3-hole', 'price' => 0.35],
-            ['name' => 'Minkus 2-hole', 'price' => 0.30],
-        ];
+        // Get paper types from centralized config
+        $paperTypes = PaperType::all()->map(fn($type) => [
+            'id' => $type->getId(),
+            'name' => $type->getName(),
+            'price' => $type->getPricePerPage(),
+        ])->toArray();
 
         $statuses = ['awaiting-payment', 'payment-received', 'processing', 'shipped'];
 

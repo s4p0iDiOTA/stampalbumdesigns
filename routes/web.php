@@ -29,6 +29,17 @@ Route::get('/api/cart', [App\Http\Controllers\CheckoutController::class, 'getCar
 Route::delete('/checkout/remove/{item_id}', [App\Http\Controllers\CheckoutController::class, 'removeCartItem'])->name('checkout.remove');
 Route::get('/checkout/clear', [App\Http\Controllers\CheckoutController::class, 'clearCart'])->name('checkout.clear');
 
+// Shipping rate calculation routes
+Route::post('/api/shipping/rates', [App\Http\Controllers\ShippingRateController::class, 'getRates'])->name('shipping.rates');
+Route::get('/api/shipping/breakdown', [App\Http\Controllers\ShippingRateController::class, 'getBreakdown'])->name('shipping.breakdown');
+Route::get('/api/shipping/test', [App\Http\Controllers\ShippingRateController::class, 'testConnection'])->name('shipping.test');
+
+// Paper type routes
+Route::get('/api/paper-types', [App\Http\Controllers\PaperTypeController::class, 'index'])->name('paper-types.index');
+Route::get('/api/paper-types/{id}', [App\Http\Controllers\PaperTypeController::class, 'show'])->name('paper-types.show');
+Route::post('/api/paper-types/calculate', [App\Http\Controllers\PaperTypeController::class, 'calculate'])->name('paper-types.calculate');
+Route::get('/api/paper-types/album/{albumType}', [App\Http\Controllers\PaperTypeController::class, 'forAlbum'])->name('paper-types.for-album');
+
 Route::get('/search-country', [CountryController::class, 'search']);
 Route::get('/countries', [CountryController::class, 'listCountryNames']);
 
