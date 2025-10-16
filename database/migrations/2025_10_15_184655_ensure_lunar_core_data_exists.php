@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Lunar\Models\Channel;
+use Lunar\Models\Country;
 use Lunar\Models\Currency;
 use Lunar\Models\CustomerGroup;
 use Lunar\Models\Language;
@@ -55,6 +56,21 @@ return new class extends Migration
                 'name' => 'Retail',
                 'handle' => 'retail',
                 'default' => true,
+            ]);
+        }
+
+        // Create default Country (United States) if none exists
+        if (Country::count() === 0) {
+            Country::create([
+                'name' => 'United States',
+                'iso3' => 'USA',
+                'iso2' => 'US',
+                'phonecode' => 1,
+                'capital' => 'Washington',
+                'currency' => 'USD',
+                'native' => 'United States',
+                'emoji' => '🇺🇸',
+                'emoji_u' => 'U+1F1FA U+1F1F8',
             ]);
         }
     }

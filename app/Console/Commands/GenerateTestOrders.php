@@ -175,9 +175,9 @@ class GenerateTestOrders extends Command
                 'customer_reference' => null,
                 'sub_total' => (int)($subtotal * 100),
                 'discount_total' => 0,
-                'discount_breakdown' => '[]', // Empty JSON array
+                'discount_breakdown' => null,
                 'shipping_total' => (int)($shippingCost * 100),
-                'shipping_breakdown' => '[]', // Empty JSON array
+                'shipping_breakdown' => null,
                 'tax_total' => 0,
                 'tax_breakdown' => $taxBreakdown,
                 'total' => (int)($total * 100),

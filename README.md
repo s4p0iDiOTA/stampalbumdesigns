@@ -210,7 +210,7 @@ php artisan optimize:clear     # Clear all caches
   php artisan user:create-admin
 
   # Non-interactive mode (provide all options)
-  php artisan user:create-admin --name="Admin Name" --email="admin@example.com" --password="password"
+  php artisan user:create-admin --name="Admin Name" --email="admin@admin.com" --password="password"
 ```
 
 ### Frontend Commands
