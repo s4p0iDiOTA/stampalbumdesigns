@@ -57,20 +57,84 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Items</h3>
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         @foreach($order->lines as $line)
-                            <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-4">
-                                <div class="flex-1">
-                                    <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                        {{ $line->description }}
-                                    </h4>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        Quantity: {{ $line->quantity }}
-                                    </p>
+                            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {{ $line->description }}
+                                        </h4>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            Quantity: {{ $line->quantity }}
+                                        </p>
+                                        @if(isset($line->meta['total_pages']))
+                                            <p class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
+                                                Total Pages: {{ $line->meta['total_pages'] }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        ${{ number_format($line->total->value / 100, 2) }}
+                                    </div>
                                 </div>
-                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    ${{ number_format($line->total->value / 100, 2) }}
-                                </div>
+
+                                @if(isset($line->meta['order_groups']) && is_array($line->meta['order_groups']))
+                                    <div class="mt-3 space-y-3">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Order Details:</h5>
+                                        @foreach($line->meta['order_groups'] as $group)
+                                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                                    <div>
+                                                        <span class="font-medium text-gray-700 dark:text-gray-300">Country:</span>
+                                                        <span class="text-gray-900 dark:text-gray-100">{{ $group['country'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="font-medium text-gray-700 dark:text-gray-300">Year Range:</span>
+                                                        <span class="text-gray-900 dark:text-gray-100">{{ $group['actualYearRange'] ?? $group['yearRange'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="font-medium text-gray-700 dark:text-gray-300">Pages:</span>
+                                                        <span class="text-gray-900 dark:text-gray-100">{{ $group['totalPages'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="font-medium text-gray-700 dark:text-gray-300">Files:</span>
+                                                        <span class="text-gray-900 dark:text-gray-100">{{ $group['totalFiles'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                    @if(isset($group['paperType']))
+                                                        <div class="col-span-2">
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Paper Type:</span>
+                                                            <span class="text-gray-900 dark:text-gray-100">
+                                                                @if($group['paperType'] == '0.20')
+                                                                    Heavyweight 3-hole ($0.20/page)
+                                                                @elseif($group['paperType'] == '0.30')
+                                                                    Scott International / Minkus 2-hole ($0.30/page)
+                                                                @elseif($group['paperType'] == '0.35')
+                                                                    Scott Specialized ($0.35/page)
+                                                                @else
+                                                                    ${{ $group['paperType'] }}/page
+                                                                @endif
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+
+                                                @if(isset($group['periods']) && is_array($group['periods']) && count($group['periods']) > 0)
+                                                    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Files Selected:</span>
+                                                        <ul class="mt-1 space-y-1">
+                                                            @foreach($group['periods'] as $period)
+                                                                <li class="text-xs text-gray-600 dark:text-gray-400">
+                                                                    • {{ $period['description'] ?? 'N/A' }} ({{ $period['pages'] ?? $period['pagesInRange'] ?? 0 }} pages)
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>

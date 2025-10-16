@@ -141,7 +141,7 @@ class GenerateTestOrders extends Command
             $totalPages = 0;
             $orderGroups = [];
 
-            // Generate random order items
+            // Generate random order items (matching /order page structure)
             for ($j = 0; $j < $itemCount; $j++) {
                 $country = $countries[array_rand($countries)];
                 $paperType = $paperTypes[array_rand($paperTypes)];
@@ -150,13 +150,26 @@ class GenerateTestOrders extends Command
                 $subtotal += $itemTotal;
                 $totalPages += $pages;
 
+                $startYear = rand(1900, 2020);
+                $endYear = rand(2021, 2024);
+
                 $orderGroups[] = [
+                    'id' => $j + 1,
                     'country' => $country,
-                    'paperType' => $paperType['name'],
-                    'pricePerPage' => $paperType['price'],
+                    'yearRange' => $startYear . ' - ' . $endYear,
+                    'actualYearRange' => $startYear . '-' . $endYear,
+                    'periods' => [
+                        [
+                            'id' => $j + 1,
+                            'description' => 'Generated Period ' . ($j + 1),
+                            'pages' => $pages,
+                            'pagesInRange' => $pages,
+                        ],
+                    ],
+                    'totalFiles' => 1,
                     'totalPages' => $pages,
-                    'yearRange' => rand(1900, 2020) . '-' . rand(2021, 2024),
-                    'total' => $itemTotal,
+                    'paperType' => (string)$paperType['price'], // Store as string like "0.20"
+                    'expanded' => false,
                 ];
             }
 
@@ -242,34 +255,30 @@ class GenerateTestOrders extends Command
                 'meta' => [],
             ]);
 
-            // Create order lines
-            foreach ($orderGroups as $index => $group) {
-                OrderLine::create([
-                    'order_id' => $order->id,
-                    'purchasable_type' => ProductVariant::class,
-                    'purchasable_id' => $variant->id,
-                    'type' => 'physical',
-                    'description' => "Stamp Album Pages - {$group['country']} ({$group['yearRange']})",
-                    'option' => $group['paperType'],
-                    'identifier' => $variant->sku,
-                    'unit_price' => (int)($group['pricePerPage'] * 100),
-                    'unit_quantity' => 1,
-                    'quantity' => 1,
-                    'sub_total' => (int)($group['total'] * 100),
-                    'discount_total' => 0,
-                    'tax_total' => 0,
-                    'total' => (int)($group['total'] * 100),
-                    'notes' => null,
-                    'tax_breakdown' => $taxBreakdown,
-                    'meta' => [
-                        'country' => $group['country'],
-                        'paper_type' => $group['paperType'],
-                        'total_pages' => $group['totalPages'],
-                        'year_range' => $group['yearRange'],
-                        'price_per_page' => $group['pricePerPage'],
-                    ],
-                ]);
-            }
+            // Create ONE order line per order (matching /order page behavior)
+            // The order line contains ALL order_groups in its meta field
+            OrderLine::create([
+                'order_id' => $order->id,
+                'purchasable_type' => ProductVariant::class,
+                'purchasable_id' => $variant->id,
+                'type' => 'physical',
+                'description' => "Stamp Album Pages - {$orderGroups[0]['country']}",
+                'option' => null,
+                'identifier' => $variant->sku,
+                'unit_price' => (int)($subtotal * 100),
+                'unit_quantity' => 1,
+                'quantity' => 1,
+                'sub_total' => (int)($subtotal * 100),
+                'discount_total' => 0,
+                'tax_total' => 0,
+                'total' => (int)($subtotal * 100),
+                'notes' => null,
+                'tax_breakdown' => $taxBreakdown,
+                'meta' => [
+                    'order_groups' => $orderGroups,
+                    'total_pages' => $totalPages,
+                ],
+            ]);
 
             $progressBar->advance();
         }
