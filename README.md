@@ -388,8 +388,11 @@ MAIL_FROM_NAME="${APP_NAME}"
 
 ## 📚 Documentation
 
-- **CLAUDE.md** - Development guidelines for AI assistance
+### Core Documentation
 - **README.md** - This file (setup and usage)
+- **CLAUDE.md** - Development guidelines for AI assistance
+- **DEPLOYMENT_CHECKLIST.md** - Complete production deployment guide
+- **QUICK_DEPLOYMENT_GUIDE.md** - Quick 30-minute deployment steps
 
 ### Key Files
 - **public/page_count_per_file_per_country.json** - SOURCE OF TRUTH for stamp data
@@ -400,7 +403,6 @@ MAIL_FROM_NAME="${APP_NAME}"
 - Admin User Guide
 - Customer User Guide
 - API Documentation
-- Deployment Guide
 
 ## 🤝 Contributing
 
