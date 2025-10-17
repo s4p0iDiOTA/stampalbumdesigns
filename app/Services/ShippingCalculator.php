@@ -2,13 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\PaperType;
+use App\Models\PaperConfiguration;
+use App\Models\PaperSize;
 
 /**
  * ShippingCalculator
- * 
+ *
  * Handles conversion of stamp album pages to shipping weight and dimensions.
- * Uses centralized PaperType model for paper specifications.
+ * Uses PaperConfiguration model for paper specifications.
  */
 class ShippingCalculator
 {
@@ -30,7 +31,7 @@ class ShippingCalculator
 
     /**
      * Calculate total weight for the order
-     * 
+     *
      * @param array $cart Cart items from session
      * @return array ['weight_oz' => float, 'weight_lbs' => float]
      */
@@ -41,15 +42,14 @@ class ShippingCalculator
         foreach ($cart as $item) {
             if (isset($item['order_groups']) && isset($item['quantity'])) {
                 foreach ($item['order_groups'] as $group) {
-                    $paperTypeId = $this->normalizePaperTypeId($group['paperType'] ?? null);
                     $totalPages = $group['totalPages'] ?? 0;
                     $quantity = $item['quantity'] ?? 1;
 
-                    // Get paper type from centralized model
-                    $paperType = PaperType::find($paperTypeId) ?? PaperType::default();
-                    
+                    // Get paper configuration
+                    $config = $this->getPaperConfiguration($group);
+
                     // Calculate weight for this group
-                    $totalWeightOz += $paperType->getWeightPerPageOz() * $totalPages * $quantity;
+                    $totalWeightOz += $config->calculateWeightPerPage() * $totalPages * $quantity;
                 }
             }
         }
@@ -66,7 +66,7 @@ class ShippingCalculator
 
     /**
      * Calculate package dimensions
-     * 
+     *
      * @param array $cart Cart items from session
      * @return array ['length' => int, 'width' => int, 'height' => int, 'type' => string]
      */
@@ -79,19 +79,19 @@ class ShippingCalculator
         foreach ($cart as $item) {
             if (isset($item['order_groups']) && isset($item['quantity'])) {
                 foreach ($item['order_groups'] as $group) {
-                    $paperTypeId = $this->normalizePaperTypeId($group['paperType'] ?? null);
                     $totalPages = $group['totalPages'] ?? 0;
                     $quantity = $item['quantity'] ?? 1;
 
-                    // Get paper type from centralized model
-                    $paperType = PaperType::find($paperTypeId) ?? PaperType::default();
-                    
+                    // Get paper configuration
+                    $config = $this->getPaperConfiguration($group);
+                    $size = $config->getSize();
+
                     // Calculate thickness for this group
-                    $totalThickness += $paperType->getThicknessInches() * $totalPages * $quantity;
-                    
+                    $totalThickness += $config->calculateThicknessPerPage() * $totalPages * $quantity;
+
                     // Track maximum dimensions
-                    $maxLength = max($maxLength, $paperType->getHeight());
-                    $maxWidth = max($maxWidth, $paperType->getWidth());
+                    $maxLength = max($maxLength, $size->getHeight());
+                    $maxWidth = max($maxWidth, $size->getWidth());
                 }
             }
         }
@@ -125,18 +125,18 @@ class ShippingCalculator
 
     /**
      * Determine package type and its weight
-     * 
+     *
      * @param array $cart
      * @return array ['type' => string, 'container_weight' => float]
      */
     private function determinePackageType(array $cart): array
     {
         $dimensions = $this->calculateDimensions($cart);
-        
+
         if ($dimensions['type'] === 'envelope') {
             return [
                 'type' => 'envelope',
-                'container_weight' => self::PACKAGING['envelope_weight_oz'] + 
+                'container_weight' => self::PACKAGING['envelope_weight_oz'] +
                                      self::PACKAGING['padding_weight_oz'],
             ];
         } else {
@@ -149,7 +149,7 @@ class ShippingCalculator
 
     /**
      * Get detailed breakdown of cart for shipping
-     * 
+     *
      * @param array $cart
      * @return array
      */
@@ -157,31 +157,31 @@ class ShippingCalculator
     {
         $weight = $this->calculateWeight($cart);
         $dimensions = $this->calculateDimensions($cart);
-        $paperTypeBreakdown = [];
+        $paperConfigBreakdown = [];
 
-        // Calculate pages by paper type
+        // Calculate pages by paper configuration
         foreach ($cart as $item) {
             if (isset($item['order_groups']) && isset($item['quantity'])) {
                 foreach ($item['order_groups'] as $group) {
-                    $paperTypeId = $this->normalizePaperTypeId($group['paperType'] ?? null);
                     $totalPages = $group['totalPages'] ?? 0;
                     $quantity = $item['quantity'] ?? 1;
 
-                    if (!isset($paperTypeBreakdown[$paperTypeId])) {
-                        $paperType = PaperType::find($paperTypeId) ?? PaperType::default();
-                        $paperTypeBreakdown[$paperTypeId] = [
-                            'id' => $paperType->getId(),
-                            'name' => $paperType->getName(),
+                    $config = $this->getPaperConfiguration($group);
+                    $configKey = $config->generateSku();
+
+                    if (!isset($paperConfigBreakdown[$configKey])) {
+                        $paperConfigBreakdown[$configKey] = [
+                            'sku' => $configKey,
+                            'name' => $config->getDisplayName(),
                             'pages' => 0,
                             'weight_oz' => 0,
-                            'price_per_page' => $paperType->getPricePerPage(),
+                            'price_per_page' => $config->calculatePricePerPage(),
                         ];
                     }
 
-                    $paperType = PaperType::find($paperTypeId) ?? PaperType::default();
-                    $paperTypeBreakdown[$paperTypeId]['pages'] += $totalPages * $quantity;
-                    $paperTypeBreakdown[$paperTypeId]['weight_oz'] += 
-                        $paperType->getWeightPerPageOz() * $totalPages * $quantity;
+                    $paperConfigBreakdown[$configKey]['pages'] += $totalPages * $quantity;
+                    $paperConfigBreakdown[$configKey]['weight_oz'] +=
+                        $config->calculateWeightPerPage() * $totalPages * $quantity;
                 }
             }
         }
@@ -189,79 +189,32 @@ class ShippingCalculator
         return [
             'total_weight' => $weight,
             'dimensions' => $dimensions,
-            'paper_types' => $paperTypeBreakdown,
+            'paper_configurations' => $paperConfigBreakdown,
             'package_type' => $dimensions['type'],
         ];
     }
 
     /**
-     * Normalize paper type identifier (backward compatibility)
-     * Converts old price-based IDs to new paper type IDs
-     * 
-     * @param mixed $paperTypeValue
-     * @return string
+     * Get paper configuration from order group data
+     *
+     * @param array $group Order group with paper configuration
+     * @return PaperConfiguration
      */
-    private function normalizePaperTypeId($paperTypeValue): string
+    private function getPaperConfiguration(array $group): PaperConfiguration
     {
-        if (is_null($paperTypeValue)) {
-            return 'standard';
+        // New format: size + options
+        if (isset($group['paper_size']) && isset($group['paper_options'])) {
+            return new PaperConfiguration(
+                $group['paper_size'],
+                $group['paper_options']
+            );
         }
 
-        // If it's already a paper type ID (string), return it
-        if (is_string($paperTypeValue) && !is_numeric($paperTypeValue)) {
-            return $paperTypeValue;
-        }
-
-        // If it's a numeric price, convert to paper type ID
-        $price = (float) $paperTypeValue;
-        
-        // Map old prices to new IDs (backward compatibility)
-        $priceMap = [
-            0.20 => 'economy',
-            0.25 => 'standard',
-            0.30 => 'premium',
-            0.35 => 'deluxe',
-        ];
-
-        foreach ($priceMap as $mappedPrice => $id) {
-            if (abs($price - $mappedPrice) < 0.001) {
-                return $id;
-            }
-        }
-
-        // Try finding by price if not in map
-        $paperType = PaperType::findByPrice($price);
-        if ($paperType) {
-            return $paperType->getId();
-        }
-
-        // Default fallback
-        return 'standard';
-    }
-
-    /**
-     * Get paper specification by type (deprecated - use PaperType::find() instead)
-     * 
-     * @param string $paperType
-     * @return array|null
-     * @deprecated Use PaperType::find() instead
-     */
-    public static function getPaperSpec(string $paperType): ?array
-    {
-        $type = PaperType::find($paperType);
-        return $type ? $type->toArray() : null;
-    }
-
-    /**
-     * Get all paper specifications (deprecated - use PaperType::all() instead)
-     * 
-     * @return array
-     * @deprecated Use PaperType::all() instead
-     */
-    public static function getAllPaperSpecs(): array
-    {
-        return PaperType::all()->mapWithKeys(fn($type) => [
-            $type->getId() => $type->toArray()
-        ])->toArray();
+        // Fallback: use default configuration for default size
+        $defaultSize = PaperSize::default();
+        return new PaperConfiguration(
+            $defaultSize->getId(),
+            $defaultSize->getDefaultOptions()
+        );
     }
 }

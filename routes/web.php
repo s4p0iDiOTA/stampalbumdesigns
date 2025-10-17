@@ -34,11 +34,17 @@ Route::post('/api/shipping/rates', [App\Http\Controllers\ShippingRateController:
 Route::get('/api/shipping/breakdown', [App\Http\Controllers\ShippingRateController::class, 'getBreakdown'])->name('shipping.breakdown');
 Route::get('/api/shipping/test', [App\Http\Controllers\ShippingRateController::class, 'testConnection'])->name('shipping.test');
 
-// Paper type routes
-Route::get('/api/paper-types', [App\Http\Controllers\PaperTypeController::class, 'index'])->name('paper-types.index');
-Route::get('/api/paper-types/{id}', [App\Http\Controllers\PaperTypeController::class, 'show'])->name('paper-types.show');
-Route::post('/api/paper-types/calculate', [App\Http\Controllers\PaperTypeController::class, 'calculate'])->name('paper-types.calculate');
-Route::get('/api/paper-types/album/{albumType}', [App\Http\Controllers\PaperTypeController::class, 'forAlbum'])->name('paper-types.for-album');
+// Paper size routes
+Route::get('/api/paper-sizes', [App\Http\Controllers\PaperSizeController::class, 'index'])->name('paper-sizes.index');
+Route::get('/api/paper-sizes/default', [App\Http\Controllers\PaperSizeController::class, 'getDefault'])->name('paper-sizes.default');
+Route::get('/api/paper-sizes/{id}', [App\Http\Controllers\PaperSizeController::class, 'show'])->name('paper-sizes.show');
+Route::get('/api/paper-sizes/{id}/options', [App\Http\Controllers\PaperSizeController::class, 'options'])->name('paper-sizes.options');
+
+// Paper configuration routes
+Route::post('/api/paper-configurations/calculate', [App\Http\Controllers\PaperConfigurationController::class, 'calculate'])->name('paper-configurations.calculate');
+Route::post('/api/paper-configurations/validate', [App\Http\Controllers\PaperConfigurationController::class, 'validate'])->name('paper-configurations.validate');
+Route::post('/api/paper-configurations/specifications', [App\Http\Controllers\PaperConfigurationController::class, 'specifications'])->name('paper-configurations.specifications');
+Route::post('/api/paper-configurations/display-name', [App\Http\Controllers\PaperConfigurationController::class, 'displayName'])->name('paper-configurations.display-name');
 
 Route::get('/search-country', [CountryController::class, 'search']);
 Route::get('/countries', [CountryController::class, 'listCountryNames']);

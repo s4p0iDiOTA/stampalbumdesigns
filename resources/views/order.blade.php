@@ -2,42 +2,42 @@
     <style>
         /* Hide elements initially to prevent FOUC */
         [x-cloak] { display: none !important; }
-        
+
         /* Enhanced country suggestions styling */
         .country-suggestions {
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 #f8fafc;
         }
-        
+
         .country-suggestions::-webkit-scrollbar {
             width: 6px;
         }
-        
+
         .country-suggestions::-webkit-scrollbar-track {
             background: #f8fafc;
             border-radius: 3px;
         }
-        
+
         .country-suggestions::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 3px;
         }
-        
+
         .country-suggestions::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
-        
+
         .last-item {
             border-bottom: none !important;
         }
-        
+
         /* Enhanced input focus styling */
         #country:focus {
             border-color: #3b82f6 !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
             outline: none;
         }
-        
+
         /* Consistent Left Panel Styling */
         .panel-section {
             background: white;
@@ -47,7 +47,7 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
         .panel-title {
             font-size: 1.1rem;
             font-weight: 600;
@@ -55,28 +55,28 @@
             margin-bottom: 1rem;
             display: block;
         }
-        
+
         .input-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .input-field {
             display: flex;
             flex-direction: column;
         }
-        
+
         .input-label {
             font-size: 0.875rem;
             font-weight: 500;
             color: #374151;
             margin-bottom: 0.5rem;
         }
-        
+
         /* Pico CSS Range styling is handled automatically */
-        
+
         .range-value-display {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -88,7 +88,7 @@
             text-align: center;
             min-width: 60px;
         }
-        
+
         .add-button {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
@@ -101,7 +101,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
         }
-        
+
         .add-button:hover {
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
             transform: translateY(-1px);
@@ -111,26 +111,135 @@
     <main class="container" x-data="orderPageData()">
         <!-- Two Column Grid using Pico CSS -->
         <div class="grid">
-            
+
             <!-- Left Column - Select Items (50%) -->
             <div style="grid-column: span 6;">
                 <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">Build Your Order</h2>
 
-                <!-- Step 1: Paper Type Selection -->
+                <!-- Step 1: Paper Configuration -->
                 <div class="panel-section">
-                    <div class="panel-title">1. Select Paper Type</div>
-                    <select
-                        id="selectedPaperType"
-                        x-model="selectedPaperType"
-                        style="font-size: 0.95rem; width: 100%;"
-                    >
-                        <option value="0">Select paper type</option>
-                        <option value="0.20">Heavyweight, 3-hole ($0.20/page)</option>
-                        <option value="0.30">Scott International ($0.30/page)</option>
-                        <option value="0.35">Scott Specialized 2-hole ($0.35/page)</option>
-                        <option value="0.35">Scott Specialized 3-hole ($0.35/page)</option>
-                        <option value="0.30">Minkus 2-hole ($0.30/page)</option>
-                    </select>
+                    <div class="panel-title">1. Configure Paper</div>
+
+                    <!-- Step 1a: Select Paper Size -->
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Paper Size</label>
+                        <select
+                            x-model="paperConfig.size"
+                            @change="loadPaperOptions()"
+                            style="font-size: 0.95rem; width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 6px;"
+                        >
+                            <option value="">Select size...</option>
+                            <template x-for="size in availableSizes" :key="size.id">
+                                <option :value="size.id" x-text="`${size.name} - $${size.base_price.toFixed(2)}/page base`"></option>
+                            </template>
+                        </select>
+                        <div x-show="selectedSizeInfo" style="margin-top: 0.5rem; padding: 0.75rem; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px;">
+                            <div style="font-size: 0.875rem; color: #1e40af;">
+                                <strong x-text="selectedSizeInfo?.name"></strong>
+                                <p x-text="selectedSizeInfo?.description" style="margin: 0.25rem 0;"></p>
+                                <p x-show="selectedSizeInfo?.badge" style="margin: 0.25rem 0;">
+                                    <span style="background: #10b981; color: white; padding: 0.125rem 0.5rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600;" x-text="selectedSizeInfo?.badge"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paper Options (shown when size is selected) -->
+                    <div x-show="paperConfig.size && paperOptions" style="display: none;">
+
+                        <!-- Paper Weight -->
+                        <div x-show="paperOptions?.paper_weights?.length > 1" style="margin-bottom: 1rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Paper Weight</label>
+                            <select
+                                x-model="paperConfig.options.paper_weight"
+                                @change="calculateCurrentPrice()"
+                                style="font-size: 0.95rem; width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 6px;"
+                            >
+                                <template x-for="weight in paperOptions.paper_weights" :key="weight.id">
+                                    <option :value="weight.id" x-text="`${weight.name} ${formatPriceModifier(weight.price_modifier)}`"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <!-- Color -->
+                        <div x-show="paperOptions?.colors?.length > 1" style="margin-bottom: 1rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Paper Color</label>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem;">
+                                <template x-for="color in paperOptions.colors" :key="color.id">
+                                    <label
+                                        style="cursor: pointer; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 6px; transition: all 0.2s;"
+                                        :style="paperConfig.options.color === color.id ? 'border-color: #3b82f6; background: #eff6ff;' : ''"
+                                    >
+                                        <input
+                                            type="radio"
+                                            :value="color.id"
+                                            x-model="paperConfig.options.color"
+                                            @change="calculateCurrentPrice()"
+                                            style="display: none;"
+                                        />
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <div style="width: 24px; height: 24px; border-radius: 4px; border: 1px solid #d1d5db;" :style="`background: ${color.hex};`"></div>
+                                            <div style="flex: 1;">
+                                                <div style="font-size: 0.875rem; font-weight: 600;" x-text="color.name"></div>
+                                                <div style="font-size: 0.75rem; color: #6b7280;" x-text="formatPriceModifier(color.price_modifier)"></div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Punches -->
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Hole Punch</label>
+                            <select
+                                x-model="paperConfig.options.punches"
+                                @change="calculateCurrentPrice()"
+                                style="font-size: 0.95rem; width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 6px;"
+                            >
+                                <template x-for="punch in paperOptions.punches" :key="punch.id">
+                                    <option :value="punch.id" x-text="`${punch.name} ${formatPriceModifier(punch.price_modifier)}`"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <!-- Corners -->
+                        <div x-show="paperOptions?.corners?.length > 1" style="margin-bottom: 1rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Corner Style</label>
+                            <select
+                                x-model="paperConfig.options.corners"
+                                @change="calculateCurrentPrice()"
+                                style="font-size: 0.95rem; width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 6px;"
+                            >
+                                <template x-for="corner in paperOptions.corners" :key="corner.id">
+                                    <option :value="corner.id" x-text="`${corner.name} ${formatPriceModifier(corner.price_modifier)}`"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <!-- Protection/Mounts -->
+                        <div x-show="paperOptions?.protection?.length > 1" style="margin-bottom: 1rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Mount Type</label>
+                            <select
+                                x-model="paperConfig.options.protection"
+                                @change="calculateCurrentPrice()"
+                                style="font-size: 0.95rem; width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 6px;"
+                            >
+                                <template x-for="protection in paperOptions.protection" :key="protection.id">
+                                    <option :value="protection.id" x-text="`${protection.name} ${formatPriceModifier(protection.price_modifier)}`"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <!-- Current Price Display -->
+                        <div style="padding: 1rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 0.875rem; margin-bottom: 0.25rem;">Current Price Per Page</div>
+                            <div style="font-size: 2rem; font-weight: 700;">
+                                $<span x-text="currentPricePerPage.toFixed(2)"></span>
+                            </div>
+                            <div style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.9;" x-text="currentConfigSku"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Step 2: Country Selection Section -->
@@ -162,19 +271,19 @@
                     </div>
 
                     <!-- Country Suggestions -->
-                    <div x-show="filteredCountries.length > 0" 
+                    <div x-show="filteredCountries.length > 0"
                          class="country-suggestions"
                          style="border: 2px solid #e2e8f0; border-radius: 8px; max-height: 240px; overflow-y: auto; background: white; margin-top: 0.5rem; z-index: 1000; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
                         <template x-for="(country, index) in filteredCountries" :key="country.name">
-                            <div style="padding: 0.875rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s ease; font-size: 0.95rem;" 
-                                 :style="highlightedIndex === index ? 
-                                    'background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border-left: 4px solid #1e40af; transform: translateX(2px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);' : 
+                            <div style="padding: 0.875rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s ease; font-size: 0.95rem;"
+                                 :style="highlightedIndex === index ?
+                                    'background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border-left: 4px solid #1e40af; transform: translateX(2px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);' :
                                     'background: white; color: #374151; border-left: 4px solid transparent;'"
                                  @click="selectCountry(country.name)"
                                  @mouseenter="highlightedIndex = index"
                                  @mouseleave="highlightedIndex = -1"
                                  :class="index === filteredCountries.length - 1 ? 'last-item' : ''">
-                                <span x-html="highlightMatch(country.name)" 
+                                <span x-html="highlightMatch(country.name)"
                                       :style="highlightedIndex === index ? 'font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.1);' : 'font-weight: 500;'"></span>
                             </div>
                         </template>
@@ -184,12 +293,12 @@
                 <!-- Step 3: Year Range Selection Section -->
                 <div x-show="selectedCountry && availablePeriods.length > 0 && availableYears.length > 0" x-cloak class="panel-section">
                 <div class="panel-title">3. Select Year Range</div>
-                    
+
                     <div class="input-group">
                         <div class="input-field">
                             <label class="input-label">From Year</label>
-                            <input 
-                                type="range" 
+                            <input
+                                type="range"
                                 :min="minAvailableYear"
                                 :max="maxAvailableYear"
                                 x-model="startYear"
@@ -203,8 +312,8 @@
                         </div>
                         <div class="input-field">
                             <label class="input-label">To Year</label>
-                            <input 
-                                type="range" 
+                            <input
+                                type="range"
                                 :min="minAvailableYear"
                                 :max="maxAvailableYear"
                                 x-model="endYear"
@@ -222,15 +331,15 @@
                 <!-- Step 4: Files Selection Section -->
                 <div x-show="selectedCountry && availablePeriods.length > 0" x-cloak class="panel-section" style="padding:0;">
                     <div class="panel-title" style="padding: 1.5rem 1.5rem 0 1.5rem;">4. Select Files</div>
-                    
+
                     <!-- Periods Table using Pico CSS -->
                     <table x-show="filteredPeriods.length > 0" x-cloak role="grid" class="striped" style="table-layout: fixed; width: 100%; margin: 0;">
                         <thead data-theme="dark" style="--pico-background-color:rgb(144, 158, 190); --pico-color:white;--pico-form-element-background-color: rgb(197 199 203)">
                             <tr>
                                 <th scope="col" style="width: 30%;">
                                     <label>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             x-model="selectAll"
                                             @change="toggleSelectAll"
                                         />
@@ -260,7 +369,7 @@
                             </template>
                         </tbody>
                     </table>
-                    
+
                     <!-- Add to Order Button -->
                     <div x-show="selectedPeriods.length > 0" x-cloak style="margin-top: 1.5rem; text-align: center;">
                         <button @click="addToOrder()" class="add-button">
@@ -356,7 +465,7 @@
                         <p style="color: #64748b;">Your order will appear here</p>
                         <p style="font-size: 0.85rem; color: #94a3b8;">Start by selecting a paper type</p>
                     </div>
-                
+
                     <div x-show="orderGroups.length > 0" x-cloak>
                         <!-- Group by Paper Type -->
                         <template x-for="[paperType, groups] in Object.entries(groupedByPaperType())" :key="paperType">
@@ -416,7 +525,7 @@
                                 </div>
                             </div>
                         </template>
-                        
+
                         <!-- Order Summary using Pico CSS -->
                         <section style="margin-top: 1rem;" x-cloak>
                             <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
@@ -479,7 +588,23 @@
                 groupIdCounter: 1,
 
                 // Paper and pricing
-                selectedPaperType: 0,
+                paperConfig: {
+                    size: '',
+                    options: {
+                        paper_weight: '',
+                        color: '',
+                        punches: '',
+                        corners: '',
+                        protection: ''
+                    }
+                },
+                availableSizes: [],
+                paperOptions: null,
+                selectedSizeInfo: null,
+                currentPricePerPage: 0,
+                currentConfigSku: '',
+
+                selectedPaperType: 0,  // Deprecated, kept for compatibility
                 quantity: 1,
                 total: 0,
                 totalPages: 0,
@@ -490,6 +615,9 @@
 
                 // Initialize component
                 init() {
+                    // Load paper sizes
+                    this.loadPaperSizes();
+
                     // Load country year page dictionary
                     fetch("{{ url('/country_year_page_dict.json') }}")
                         .then(response => response.json())
@@ -507,6 +635,95 @@
                             this.pageCountPerFile = data;
                         })
                         .catch(error => console.error('Error loading page count per file:', error));
+                },
+
+                // Paper Configuration Methods
+                async loadPaperSizes() {
+                    try {
+                        const response = await fetch('/api/paper-sizes');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.availableSizes = result.data;
+                            // Auto-select default size
+                            const defaultSize = this.availableSizes.find(s => s.is_default);
+                            if (defaultSize) {
+                                this.paperConfig.size = defaultSize.id;
+                                await this.loadPaperOptions();
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading paper sizes:', error);
+                    }
+                },
+
+                async loadPaperOptions() {
+                    if (!this.paperConfig.size) {
+                        this.paperOptions = null;
+                        this.selectedSizeInfo = null;
+                        return;
+                    }
+
+                    try {
+                        // Get size info
+                        this.selectedSizeInfo = this.availableSizes.find(s => s.id === this.paperConfig.size);
+
+                        // Get available options for this size
+                        const response = await fetch(`/api/paper-sizes/${this.paperConfig.size}/options`);
+                        const result = await response.json();
+
+                        if (result.success) {
+                            this.paperOptions = result.data;
+
+                            // Set defaults from size
+                            const defaults = this.selectedSizeInfo.default_options;
+                            this.paperConfig.options.paper_weight = defaults.paper_weight;
+                            this.paperConfig.options.color = defaults.color;
+                            this.paperConfig.options.punches = defaults.punches;
+                            this.paperConfig.options.corners = defaults.corners;
+                            this.paperConfig.options.protection = defaults.protection;
+
+                            // Calculate initial price
+                            await this.calculateCurrentPrice();
+                        }
+                    } catch (error) {
+                        console.error('Error loading paper options:', error);
+                    }
+                },
+
+                async calculateCurrentPrice() {
+                    if (!this.paperConfig.size) {
+                        this.currentPricePerPage = 0;
+                        this.currentConfigSku = '';
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/paper-configurations/calculate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                size: this.paperConfig.size,
+                                options: this.paperConfig.options,
+                                pages: 1
+                            })
+                        });
+
+                        const result = await response.json();
+                        if (result.success) {
+                            this.currentPricePerPage = result.data.price_per_page;
+                            this.currentConfigSku = result.data.sku;
+                        }
+                    } catch (error) {
+                        console.error('Error calculating price:', error);
+                    }
+                },
+
+                formatPriceModifier(modifier) {
+                    if (!modifier || modifier === 0) return '';
+                    return modifier > 0 ? `(+$${modifier.toFixed(2)})` : `(-$${Math.abs(modifier).toFixed(2)})`;
                 },
 
                 // Show all countries when input is focused
@@ -734,13 +951,36 @@
                 },
 
                 // Calculate total price from all groups
-                calculateTotal() {
-                    this.total = this.orderGroups.reduce((sum, group) => {
-                        if (group.paperType && group.paperType > 0) {
-                            return sum + (group.totalPages * parseFloat(group.paperType));
+                async calculateTotal() {
+                    let totalPrice = 0;
+
+                    for (const group of this.orderGroups) {
+                        if (group.paper_size && group.paper_options) {
+                            try {
+                                const response = await fetch('/api/paper-configurations/calculate', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                    },
+                                    body: JSON.stringify({
+                                        size: group.paper_size,
+                                        options: group.paper_options,
+                                        pages: group.totalPages
+                                    })
+                                });
+
+                                const result = await response.json();
+                                if (result.success) {
+                                    totalPrice += result.data.total_price;
+                                }
+                            } catch (error) {
+                                console.error('Error calculating group price:', error);
+                            }
                         }
-                        return sum;
-                    }, 0);
+                    }
+
+                    this.total = totalPrice;
                 },
 
                 // Group order groups by paper type
@@ -764,6 +1004,22 @@
                         '0.35': 'Scott Specialized'
                     };
                     return names[price] || 'Custom Paper Type';
+                },
+
+                // Group order groups by paper configuration (New method)
+                groupedByPaperConfig() {
+                    const grouped = {};
+                    this.orderGroups.forEach(group => {
+                        const configKey = `${group.paper_size || 'none'}-${JSON.stringify(group.paper_options || {})}`;
+                        if (!grouped[configKey]) {
+                            grouped[configKey] = {
+                                config: { size: group.paper_size, options: group.paper_options },
+                                groups: []
+                            };
+                        }
+                        grouped[configKey].groups.push(group);
+                    });
+                    return grouped;
                 },
 
                 // Get period object by ID
@@ -802,6 +1058,10 @@
                 // Add selected periods to order
                 addToOrder() {
                     if (this.selectedPeriods.length === 0) return;
+                    if (!this.paperConfig.size) {
+                        alert('Please select a paper size first');
+                        return;
+                    }
 
                     const periodsToAdd = this.selectedPeriods.map(id => this.getPeriodById(id));
                     const yearRange = this.getYearRange();
@@ -814,7 +1074,7 @@
                         return total + parseInt(pageCount);
                     }, 0);
 
-                    // Create new order group with selected paper type
+                    // Create new order group with paper configuration
                     const newGroup = {
                         id: groupId,
                         country: this.selectedCountry,
@@ -823,7 +1083,8 @@
                         periods: periodsToAdd,
                         totalFiles: periodsToAdd.length,
                         totalPages: totalPages,
-                        paperType: this.selectedPaperType || 0,  // Use selected paper type from Step 1
+                        paper_size: this.paperConfig.size,
+                        paper_options: { ...this.paperConfig.options },  // Store current paper configuration
                         expanded: false
                     };
 
@@ -926,10 +1187,10 @@
                     const end = parseInt(this.endYear) || this.maxAvailableYear;
                     const min = this.minAvailableYear;
                     const max = this.maxAvailableYear;
-                    
+
                     const startPercent = ((start - min) / (max - min)) * 100;
                     const endPercent = ((end - min) / (max - min)) * 100;
-                    
+
                     return `left: ${startPercent}%; width: ${endPercent - startPercent}%;`;
                 }
             }

@@ -3,291 +3,338 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Paper Type Definitions
+    | Paper Sizes
     |--------------------------------------------------------------------------
     |
-    | Central repository for all paper types used in stamp album orders.
-    | Each paper type includes physical specifications, pricing, and display
-    | information used throughout the application.
+    | Base paper sizes with physical dimensions and specifications.
+    | Each size defines available customization options.
     |
     */
 
-    'types' => [
-        'economy' => [
-            'id' => 'economy',
-            'name' => 'Economy Paper',
-            'description' => 'Budget-friendly option, ideal for general collections',
-            'sku_prefix' => 'ECO',
-            
-            // Pricing
-            'price_per_page' => 0.20,
-            
-            // Physical specifications
-            'weight_per_page_oz' => 0.16,      // Weight in ounces
-            'thickness_inches' => 0.004,        // Thickness in inches
-            'paper_weight_lbs' => 20,           // Paper weight (20lb bond)
-            
+    'sizes' => [
+        '8.5x11' => [
+            'id' => '8.5x11',
+            'name' => '8.5" × 11"',
+            'description' => 'Acid-free, heavyweight paper, ideal for general collections',
+            'sku_prefix' => '85X11',
+
             // Dimensions (inches)
             'width' => 8.5,
             'height' => 11.0,
-            
-            // Features
-            'punches' => '3-hole',              // Hole punch configuration
-            'color' => 'white',                 // Paper color
-            'finish' => 'matte',                // Surface finish
-            'opacity' => 85,                    // Opacity percentage
-            
+
+            // Base specifications (for 67lb paper with standard options)
+            'base_weight_oz' => 0.32352,
+            'base_thickness_inches' => 0.009,
+            'base_price' => 0.20,
+
+            // Available options for this size
+            'available_options' => [
+                'paper_weights' => ['67lb cardstock'],
+                'colors' => ['cream', 'white'],
+                'punches' => ['none', '3-hole'],
+                'corners' => ['square', 'rounded'],
+                'protection' => ['none', 'hingeless'],
+            ],
+
+            // Defaults for this size
+            'default_options' => [
+                'paper_weight' => '67lb cardstock',
+                'color' => 'cream',
+                'punches' => '3-hole',
+                'corners' => 'square',
+                'protection' => 'none',
+            ],
+
             // Display
             'display_order' => 1,
             'is_active' => true,
-            'is_default' => false,
-            
+            'is_default' => true,
+
             // Marketing
             'badge' => 'Best Value',
-            'recommended_for' => 'Casual collectors, backup copies',
+            'recommended_for' => 'General collections. About 300 pages per 3-inch D-ring binder.',
         ],
 
-        'standard' => [
-            'id' => 'standard',
-            'name' => 'Standard Paper',
-            'description' => 'Most popular choice, perfect for regular use',
-            'sku_prefix' => 'STD',
-            
-            // Pricing
-            'price_per_page' => 0.25,
-            
-            // Physical specifications
-            'weight_per_page_oz' => 0.20,
-            'thickness_inches' => 0.005,
-            'paper_weight_lbs' => 24,
-            
-            // Dimensions
-            'width' => 8.5,
-            'height' => 11.0,
-            
-            // Features
-            'punches' => '3-hole',
-            'color' => 'white',
-            'finish' => 'matte',
-            'opacity' => 90,
-            
-            // Display
+        'minkus' => [
+            'id' => 'minkus',
+            'name' => '9.5" × 11.25" (Minkus)',
+            'description' => 'Minkus Global compatible size',
+            'sku_prefix' => 'MNK',
+
+            'width' => 9.5,
+            'height' => 11.25,
+
+            'base_weight_oz' => 0.2822,
+            'base_thickness_inches' => 0.0065,
+            'base_price' => 0.30,
+
+            'available_options' => [
+                'paper_weights' => ['70lb', '80lb'],
+                'colors' => ['white'],
+                'punches' => ['2-hole'],
+                'corners' => ['square', 'rounded'],
+                'protection' => ['none', 'hingeless'],
+            ],
+
+            'default_options' => [
+                'paper_weight' => '80lb',
+                'color' => 'white',
+                'punches' => '2-hole',
+                'corners' => 'square',
+                'protection' => 'none',
+            ],
+
             'display_order' => 2,
             'is_active' => true,
-            'is_default' => true,  // Default selection
-            
-            // Marketing
-            'badge' => 'Most Popular',
-            'recommended_for' => 'General collections, everyday use',
-        ],
-
-        'premium' => [
-            'id' => 'premium',
-            'name' => 'Premium Paper',
-            'description' => 'High-quality paper for valuable collections',
-            'sku_prefix' => 'PRM',
-            
-            // Pricing
-            'price_per_page' => 0.30,
-            
-            // Physical specifications
-            'weight_per_page_oz' => 0.24,
-            'thickness_inches' => 0.006,
-            'paper_weight_lbs' => 28,
-            
-            // Dimensions
-            'width' => 8.5,
-            'height' => 11.0,
-            
-            // Features
-            'punches' => '3-hole',
-            'color' => 'bright-white',
-            'finish' => 'smooth',
-            'opacity' => 95,
-            
-            // Display
-            'display_order' => 3,
-            'is_active' => true,
             'is_default' => false,
-            
-            // Marketing
-            'badge' => 'Premium Quality',
-            'recommended_for' => 'Valuable collections, archival use',
-        ],
 
-        'deluxe' => [
-            'id' => 'deluxe',
-            'name' => 'Deluxe Paper',
-            'description' => 'Professional-grade paper for museum-quality presentations',
-            'sku_prefix' => 'DLX',
-            
-            // Pricing
-            'price_per_page' => 0.35,
-            
-            // Physical specifications
-            'weight_per_page_oz' => 0.28,
-            'thickness_inches' => 0.007,
-            'paper_weight_lbs' => 32,
-            
-            // Dimensions
-            'width' => 8.5,
-            'height' => 11.0,
-            
-            // Features
-            'punches' => '3-hole',
-            'color' => 'bright-white',
-            'finish' => 'premium-smooth',
-            'opacity' => 98,
-            
-            // Display
-            'display_order' => 4,
-            'is_active' => true,
-            'is_default' => false,
-            
-            // Marketing
-            'badge' => 'Professional Grade',
-            'recommended_for' => 'Exhibition quality, rare stamps, long-term preservation',
+            'badge' => 'Minkus Compatible',
+            'recommended_for' => 'Used with Minkus Global albums and similar sizes.',
         ],
 
         'international' => [
             'id' => 'international',
-            'name' => 'Scott International',
-            'description' => 'Compatible with Scott International albums',
+            'name' => '9.25" × 11.25" International',
+            'description' => 'Scott International compatible size',
             'sku_prefix' => 'INT',
-            
-            // Pricing
-            'price_per_page' => 0.30,
-            
-            // Physical specifications
-            'weight_per_page_oz' => 0.20,
-            'thickness_inches' => 0.005,
-            'paper_weight_lbs' => 24,
-            
-            // Dimensions
-            'width' => 8.5,
-            'height' => 11.0,
-            
-            // Features
-            'punches' => '2-hole',  // Different hole configuration
-            'color' => 'white',
-            'finish' => 'matte',
-            'opacity' => 90,
-            
-            // Display
-            'display_order' => 5,
+
+            'width' => 9.25,
+            'height' => 11.25,
+
+            'base_weight_oz' => 0.27161,
+            'base_thickness_inches' => 0.0065,
+            'base_price' => 0.30,
+
+            'available_options' => [
+                'paper_weights' => ['80lb'],
+                'colors' => ['cougar-natural'],
+                'punches' => ['2-hole'],
+                'corners' => ['square', 'rounded'],
+                'protection' => ['none', 'hingeless'],
+            ],
+
+            'default_options' => [
+                'paper_weight' => '80lb',
+                'color' => 'cougar-natural',
+                'punches' => '2-hole',
+                'corners' => 'square',
+                'protection' => 'none',
+            ],
+
+            'display_order' => 3,
             'is_active' => true,
             'is_default' => false,
-            
-            // Marketing
-            'badge' => 'Scott Compatible',
-            'recommended_for' => 'Scott International album users',
+
+            'badge' => 'Scott International Compatible',
+            'recommended_for' => 'Used with Scott International albums and similar sizes.',
+        ],
+
+        'specialized' => [
+            'id' => 'specialized',
+            'name' => '10.5" × 12" Specialized',
+            'description' => 'Scott Specialized compatible, premium quality',
+            'sku_prefix' => 'SPC',
+
+            'width' => 10.5,
+            'height' => 12.0,
+
+            'base_weight_oz' => 0.31747,
+            'base_thickness_inches' => 0.0065,
+            'base_price' => 0.35,
+
+            'available_options' => [
+                'paper_weights' => ['80lb'],
+                'colors' => ['cougar-natural'],
+                'punches' => ['none', '2-hole-rect', '3-hole'],
+                'corners' => ['square', 'rounded'],
+                'protection' => ['none', 'hingeless'],
+            ],
+
+            'default_options' => [
+                'paper_weight' => '80lb',
+                'color' => 'cougar-natural',
+                'punches' => '2-hole-rect',
+                'corners' => 'square',
+                'protection' => 'none',
+            ],
+
+            'display_order' => 4,
+            'is_active' => true,
+            'is_default' => false,
+
+            'badge' => 'Scott Specialized Compatible',
+            'recommended_for' => 'Used with Scott Specialized albums and similar sizes.',
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Punch Configurations
+    | Paper Options
     |--------------------------------------------------------------------------
     |
-    | Available hole punch configurations and their specifications.
+    | Customization options available for paper sizes.
+    | Each option includes price modifiers and physical impacts.
     |
     */
-    'punch_types' => [
-        '2-hole' => [
-            'name' => '2-Hole Punch',
-            'description' => 'Standard 2-hole configuration',
-            'hole_count' => 2,
-            'hole_diameter' => 0.25, // inches
-            'spacing' => 2.75, // inches between hole centers
+
+    'options' => [
+
+        // Paper Weight Options
+        'paper_weights' => [
+            '67lb cardstock' => [
+                'id' => '67lb',
+                'name' => '67lb Cardstock',
+                'description' => 'Standard weight, good for general collections',
+                'weight_multiplier' => 1.0,
+                'thickness_multiplier' => 1.0,
+                'price_modifier' => 0.00,
+                'display_order' => 1,
+            ],
+            '70lb' => [
+                'id' => '70lb',
+                'name' => '70lb Paper',
+                'description' => 'Heavier weight, more rigid',
+                'weight_multiplier' => 1.194,  // 80/67
+                'thickness_multiplier' => 1.15,
+                'price_modifier' => 0.05,
+                'display_order' => 2,
+            ],
+            '80lb' => [
+                'id' => '80lb',
+                'name' => '80lb Paper',
+                'description' => 'Heavier weight, more rigid',
+                'weight_multiplier' => 1.194,  // 80/67
+                'thickness_multiplier' => 1.15,
+                'price_modifier' => 0.05,
+                'display_order' => 2,
+            ]
         ],
-        '3-hole' => [
-            'name' => '3-Hole Punch',
-            'description' => 'Standard 3-hole configuration',
-            'hole_count' => 3,
-            'hole_diameter' => 0.25,
-            'spacing' => 4.25, // inches between outer holes
+
+        // Color Options
+        'colors' => [
+            'cream' => [
+                'id' => 'cream',
+                'name' => 'Cream',
+                'description' => 'Soft cream color, easy on the eyes',
+                'hex' => '#FFFDD0',
+                'price_modifier' => 0.00,
+                'display_order' => 1,
+            ],
+            'white' => [
+                'id' => 'white',
+                'name' => 'Bright White',
+                'description' => 'Standard white paper',
+                'hex' => '#FFFFFF',
+                'price_modifier' => 0.00,
+                'display_order' => 2,
+            ],
+            'cougar-natural' => [
+                'id' => 'cougar-natural',
+                'name' => 'Cougar Natural',
+                'description' => 'Natural off-white shade, archive quality',
+                'hex' => '#FAF8F3',
+                'price_modifier' => 0.02,
+                'display_order' => 3,
+            ],
         ],
-        'none' => [
-            'name' => 'No Holes',
-            'description' => 'Unpunched pages',
-            'hole_count' => 0,
+
+        // Punch Options
+        'punches' => [
+            'none' => [
+                'id' => 'none',
+                'name' => 'No Holes',
+                'description' => 'Unpunched pages (you punch yourself)',
+                'hole_count' => 0,
+                'hole_shape' => null,
+                'price_modifier' => -0.02,
+                'display_order' => 1,
+            ],
+            '2-hole' => [
+                'id' => '2-hole',
+                'name' => '2-Hole Punch',
+                'description' => 'Standard 2-hole round configuration',
+                'hole_count' => 2,
+                'hole_shape' => 'round',
+                'hole_diameter' => 0.25,
+                'spacing' => 2.75,
+                'price_modifier' => 0.00,
+                'display_order' => 2,
+            ],
+            '2-hole-rect' => [
+                'id' => '2-hole-rect',
+                'name' => '2-Hole Rectangular',
+                'description' => 'Rectangular slots for reinforced binding',
+                'hole_count' => 2,
+                'hole_shape' => 'rectangular',
+                'hole_width' => 0.375,
+                'hole_height' => 0.125,
+                'spacing' => 2.75,
+                'price_modifier' => 0.03,
+                'display_order' => 3,
+            ],
+            '3-hole' => [
+                'id' => '3-hole',
+                'name' => '3-Hole Punch',
+                'description' => 'Standard 3-hole round configuration',
+                'hole_count' => 3,
+                'hole_shape' => 'round',
+                'hole_diameter' => 0.25,
+                'spacing' => 4.25,
+                'price_modifier' => 0.00,
+                'display_order' => 4,
+            ],
+        ],
+
+        // Corner Options
+        'corners' => [
+            'square' => [
+                'id' => 'square',
+                'name' => 'Square Corners',
+                'description' => 'Standard square corners',
+                'price_modifier' => 0.00,
+                'display_order' => 1,
+            ],
+            'rounded' => [
+                'id' => 'rounded',
+                'name' => 'Rounded Corners',
+                'description' => 'Professional rounded corners (1/8" radius)',
+                'radius' => 0.125,
+                'price_modifier' => 0.03,
+                'display_order' => 2,
+            ],
+        ],
+
+        // Protection Options
+        'protection' => [
+            'none' => [
+                'id' => 'none',
+                'name' => 'Standard',
+                'description' => 'Standard paper without mounts',
+                'price_modifier' => 0.00,
+                'display_order' => 1,
+            ],
+            'hingeless' => [
+                'id' => 'hingeless',
+                'name' => 'Hingeless Mounts',
+                'description' => 'Pre-attached crystal clear hingeless mounts',
+                'price_modifier' => 0.50,
+                'weight_modifier_oz' => 0.05,
+                'display_order' => 2,
+            ],
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Paper Colors
-    |--------------------------------------------------------------------------
-    |
-    | Available paper colors and their specifications.
-    |
-    */
-    'colors' => [
-        'white' => [
-            'name' => 'White',
-            'hex' => '#FFFFFF',
-            'description' => 'Standard white paper',
-        ],
-        'bright-white' => [
-            'name' => 'Bright White',
-            'hex' => '#FAFAFA',
-            'description' => 'Ultra-bright white for enhanced contrast',
-        ],
-        'cream' => [
-            'name' => 'Cream',
-            'hex' => '#FFFDD0',
-            'description' => 'Soft cream color, easy on the eyes',
-        ],
-        'ivory' => [
-            'name' => 'Ivory',
-            'hex' => '#FFFFF0',
-            'description' => 'Classic ivory shade',
-        ],
-    ],
 
     /*
     |--------------------------------------------------------------------------
-    | Paper Finishes
+    | Defaults
     |--------------------------------------------------------------------------
     |
-    | Available paper surface finishes.
+    | System-wide default paper configuration.
     |
     */
-    'finishes' => [
-        'matte' => 'Matte - Non-reflective surface',
-        'smooth' => 'Smooth - Slightly smoother than matte',
-        'premium-smooth' => 'Premium Smooth - Highest quality smooth finish',
-        'glossy' => 'Glossy - Reflective surface (not recommended for stamps)',
-    ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Default Values
-    |--------------------------------------------------------------------------
-    |
-    | Default paper type and other default settings.
-    |
-    */
     'defaults' => [
-        'paper_type' => 'standard',
-        'punches' => '3-hole',
-        'color' => 'white',
-        'finish' => 'matte',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Compatibility Matrix
-    |--------------------------------------------------------------------------
-    |
-    | Which paper types are compatible with which album types.
-    |
-    */
-    'album_compatibility' => [
-        'scott-national' => ['economy', 'standard', 'premium', 'deluxe'],
-        'scott-international' => ['international', 'standard', 'premium'],
-        'minkus' => ['economy', 'standard', 'premium'],
-        'harris' => ['economy', 'standard', 'premium', 'deluxe'],
-        'custom' => ['economy', 'standard', 'premium', 'deluxe'],
+        'paper_size' => '8.5x11',
     ],
 ];
